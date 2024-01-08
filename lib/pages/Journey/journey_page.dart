@@ -5,6 +5,7 @@ import 'package:travel_journal/config/app_routes.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_page.dart';
+import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyPage extends StatefulWidget {
@@ -64,7 +65,7 @@ class _JourneyPageState extends State<JourneyPage> {
           ),
           child: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed(AppRoutes.notehomepage);
+                HomeNavigator();
               },
               child: Icon(Icons.arrow_back)),
         ),

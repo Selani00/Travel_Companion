@@ -12,6 +12,7 @@ class AppImages {
   static const setupback = '${_img}AppSetUp_Back.jpg';
   static const google = '${_img}google.png';
   static const loginback = '${_img}testback.png';
+  static const registrationback = '${_img}registration_back.png';
 
   //svg
   static const doublearrow = '${_svg}doublearrow.svg';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/config/app_routes.dart';
+import 'package:travel_journal/pages/Autheticate/authentication.dart';
 import 'package:travel_journal/services/auth/auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -142,7 +143,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           Spacer(),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              const Authenticate();
+                            },
                             child: Text("Don't have an account?",
                                 style: TextStyle(
                                   decoration: TextDecoration.underline,

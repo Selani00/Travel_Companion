@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_images.dart';
-import 'package:travel_journal/config/app_routes.dart';
-import 'package:travel_journal/pages/Autheticate/authentication.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/auth/auth.dart';
 
@@ -175,7 +173,7 @@ class _AppSetUpPageState extends State<AppSetUpPage> {
                           Spacer(),
                           GestureDetector(
                             onTap: () {
-                              Authenticate();
+                              widget.toggle();
                             },
                             child: Text("Already have an account",
                                 style: TextStyle(
@@ -198,10 +196,9 @@ class _AppSetUpPageState extends State<AppSetUpPage> {
                           dynamic result =
                               await _authService.registerWithEmailAndPassword(
                                   _email, _password, _username);
-                          if (result == null) {
+                          if (result == false) {
                             setState(() {
                               _error = 'Registration Failed';
-                              
                             });
                           } else {
                             HomeNavigator();

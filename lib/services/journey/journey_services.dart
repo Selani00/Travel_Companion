@@ -11,19 +11,20 @@ class JourneyServices {
   NoteServices noteServices = NoteServices();
 
   //constructor
-  JourneyServices({required this.note});
+  JourneyServices({this.note});
 
   //creation
   Future<bool> createJourneyInJourneyCollection(Journey journey) async {
     try {
+      String noteId = await noteServices.createNoteInNotesCollection();
       await _firestore
           .collection('Users')
           .doc(_auth.currentUser!.uid)
           .collection('Notes')
-          .doc(note!.noteId)
+          .doc(noteId)
           .collection('Journey')
           .add({
-        'noteId':note!.noteId,
+        'noteId': note!.noteId,
         'title': journey.title,
         'journeyDescription': journey.journeyDescription,
         'journeyLocations': journey.journeyLocations,
@@ -37,6 +38,7 @@ class JourneyServices {
           .update({
         'title': journey.title,
       });
+      print("Note added");
       return true;
     } catch (e) {
       print(e);
@@ -44,7 +46,6 @@ class JourneyServices {
     }
   }
 
-  
   Future<List<Journey>> getJourneyInsideTheNote() async {
     try {
       QuerySnapshot querySnapshot = await _firestore
@@ -53,7 +54,7 @@ class JourneyServices {
           .collection('Notes')
           .doc(note!.noteId)
           .collection('Journey')
-          .where('noteId',isEqualTo: note!.noteId)
+          .where('noteId', isEqualTo: note!.noteId)
           .get();
 
       List<Journey> journey = querySnapshot.docs
@@ -109,7 +110,7 @@ class JourneyServices {
   //delete journey
   Future<bool> deleteJourneyInsideTheNote() async {
     try {
-     QuerySnapshot querySnapshot =  await _firestore
+      QuerySnapshot querySnapshot = await _firestore
           .collection('Users')
           .doc(_auth.currentUser!.uid)
           .collection('Notes')
@@ -124,7 +125,7 @@ class JourneyServices {
         print('Journey deleted successfully!');
       } else {
         print('No Journey found with the provided noteId.');
-      }    
+      }
       return true;
     } catch (e) {
       print(e);
@@ -133,29 +134,29 @@ class JourneyServices {
   }
 
   //add or update function
-  Future<bool> addOrUpdateJourneyInsideTheNote(
-      {required String title,
-      required String description,
-      required String locations}) async {
-    try {
-      List<Journey>? journey = await getJourneyInsideTheNote();
-      if (journey != null && journey.isNotEmpty) {
-        print("update triggered");
-        return await updateJourneyInsideTheNote(
-            title: title, description: description, locations: locations);
-      } else {
-        return await createJourneyInJourneyCollection(Journey(
-          title: title,
-          journeyDescription: description,
-          journeyLocations: locations,
-          noteId: note!.noteId,
-          colorId: note!.colorId,
-          date: note!.date,
-        ));
-      }
-    } catch (e) {
-      print(e);
-      return false;
-    }
-  }
+  // Future<bool> addOrUpdateJourneyInsideTheNote(
+  //     {required String title,
+  //     required String description,
+  //     required String locations}) async {
+  //   try {
+  //     List<Journey>? journey = await getJourneyInsideTheNote();
+  //     if (journey != null && journey.isNotEmpty) {
+  //       print("update triggered");
+  //       return await updateJourneyInsideTheNote(
+  //           title: title, description: description, locations: locations);
+  //     } else {
+  //       return await createJourneyInJourneyCollection(Journey(
+  //         title: title,
+  //         journeyDescription: description,
+  //         journeyLocations: locations,
+  //         noteId: note!.noteId,
+  //         colorId: note!.colorId,
+  //         date: note!.date,
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     return false;
+  //   }
+  // }
 }

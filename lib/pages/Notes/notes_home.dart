@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_routes.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/config/app_colors.dart';
-import 'package:travel_journal/pages/Journey/journey_page.dart';
+import 'package:travel_journal/pages/Journey/journey_update_page.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
 import 'package:travel_journal/widgets/note.dart';
 import 'package:travel_journal/services/auth/auth.dart';
@@ -98,12 +98,12 @@ class _HomeScreenState extends State<NoteHomePage> {
                           return noteCard(
                               () => Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) => JourneyPage(
+                                      builder: (context) => JourneyUpdatePage(
                                           note: snapshot.data![index]))),
                               snapshot.data![index]);
                         });
                   } else {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(child: Text("No Documents Yet"));
                   }
                 }),
           ),

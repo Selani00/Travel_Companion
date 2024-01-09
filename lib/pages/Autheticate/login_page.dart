@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/config/app_routes.dart';
-import 'package:travel_journal/pages/Autheticate/authentication.dart';
+import 'package:travel_journal/pages/Autheticate/forgot_password_page.dart';
 import 'package:travel_journal/services/auth/auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -132,19 +132,24 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "Forgot Password?",
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.white,
-                              color: Colors.white,
-                              fontSize: 14,
+                          GestureDetector(
+                            onTap: () {
+                              ForgotPassword();
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.white,
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                           Spacer(),
                           GestureDetector(
                             onTap: () {
-                              const Authenticate();
+                              widget.toggle();
                             },
                             child: Text("Don't have an account?",
                                 style: TextStyle(

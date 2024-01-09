@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/models/plan.dart';
-import 'package:travel_journal/pages/Journey/journey_page.dart';
+import 'package:travel_journal/pages/Journey/journey_add_page.dart';
+import 'package:travel_journal/pages/Journey/journey_update_page.dart';
 import 'package:travel_journal/services/plan/plan_services.dart';
 
 class PlanAddPage extends StatefulWidget {
@@ -64,7 +65,8 @@ class _PlanAddPageState extends State<PlanAddPage> {
               onTap: () async {
                 await Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) => JourneyPage(note: widget.note)),
+                      builder: (context) =>
+                          JourneyUpdatePage(note: widget.note)),
                 );
               },
               child: Icon(Icons.arrow_back)),
@@ -194,13 +196,15 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       ElevatedButton(
                           onPressed: () async {
-                            if (isEdditingEnabled) {
-                              isDone = await planServices
-                                  ?.addOrUpdatePlanInsideTheNote(
-                                      title: titlecontroller.text,
-                                      description: descriptioncontroller.text,
-                                      locations: locationcontroller.text);
-                            }
+                            await planServices
+                                ?.createPlanInPlansCollection(Plan(
+                              title: titlecontroller.text,
+                              planDescription: descriptioncontroller.text,
+                              planLocations: locationcontroller.text,
+                              noteId: widget.note!.noteId,
+                              date: widget.note!.date,
+                              colorId: widget.note!.colorId,
+                            ));
                             if (isDone == 1 || isDone == 2) {
                               setState(() {
                                 isEdditingEnabled = false;
@@ -217,7 +221,7 @@ class _PlanAddPageState extends State<PlanAddPage> {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      JourneyPage(note: widget.note)),
+                                      JourneyAddPage(note: widget.note)),
                             );
                           },
                           style: ElevatedButton.styleFrom(

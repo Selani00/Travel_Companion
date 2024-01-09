@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
 
@@ -61,20 +62,26 @@ class AuthService {
       final User? user = result.user;
       UserWithCredentials userWithCredentials =
           UserWithCredentials(uid: user!.uid, email: email, username: username);
-      await createUserInUsersCollection(userWithCredentials);
+      bool userCreatedInFirestore =
+          await createUserInUsersCollection(userWithCredentials);
       //await SharedPreferenceService().saveUserEmail(email);
       //await SharedPreferenceService().saveUserId(user!.uid);
-      return _userWithFirebaseUserUid(user);
+      if (userCreatedInFirestore) {
+        return _userWithFirebaseUserUid(user);
+      } else {
+        throw Error();
+      }
     } catch (e) {
       print(e.toString());
       return null;
     }
   }
 
+  //CREATE NEW  user
   Future<bool> createUserInUsersCollection(
       UserWithCredentials userWithCredentials) async {
     try {
-      await _firestore.collection('Users').doc(_auth.currentUser!.uid).update({
+      await _firestore.collection('Users').add({
         'email': userWithCredentials.email,
         'id': _auth.currentUser!.uid,
         'username': userWithCredentials.username,
@@ -86,6 +93,10 @@ class AuthService {
     }
   }
 
+  //UserWithCredentials return
+  
+
+  //gmail signup
   Future<bool> signInWithGoogle() async {
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -101,12 +112,13 @@ class AuthService {
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
     User? userDetils = result.user;
 
-    await createUserInUsersCollection(UserWithCredentials(
-        uid: userDetils!.uid,
-        email: userDetils.email,
-        username: userDetils.displayName));
+    bool gmailuserCreatedInFirestore = await createUserInUsersCollection(
+        UserWithCredentials(
+            uid: userDetils!.uid,
+            email: userDetils.email,
+            username: userDetils.displayName));
 
-    if (userDetils != null) {
+    if (gmailuserCreatedInFirestore) {
       return true;
     } else {
       return false;

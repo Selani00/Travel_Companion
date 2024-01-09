@@ -20,7 +20,6 @@ class AppRoutes {
     notehomepage: (context) => const NoteHomePage(),
     mappage: (context) => const MapPage(),
     weatherpage: (context) => const WeatherPage(),
-    profilepage: (context) => const ProfilePage(),
     reminderspage: (context) => const RemindersPage(),
     homenavigation: (context) => const HomeNavigator(),
   };
@@ -33,7 +32,6 @@ class AppRoutes {
   static const noteaddpage = '/noteaddpage';
   static const login = '/loginpage';
   static const weatherpage = '/weatherpage';
-  static const profilepage = '/profilepage';
   static const reminderspage = '/reminderspage';
   static const homenavigation = '/homenavigator';
 }

@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/config/app_images.dart';
-import 'package:travel_journal/config/app_routes.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
-import 'package:travel_journal/pages/Plans/plan_page.dart';
+import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
-class JourneyPage extends StatefulWidget {
-  JourneyPage({this.note, super.key});
+class JourneyAddPage extends StatefulWidget {
+  JourneyAddPage({this.note, super.key});
   Note? note;
 
   @override
-  State<JourneyPage> createState() => _JourneyPageState();
+  State<JourneyAddPage> createState() => _JourneyPageState();
 }
 
-class _JourneyPageState extends State<JourneyPage> {
+class _JourneyPageState extends State<JourneyAddPage> {
   JourneyServices? journeyServices;
   List<Journey>? journey;
   TextEditingController titlecontroller = TextEditingController();
@@ -79,9 +78,7 @@ class _JourneyPageState extends State<JourneyPage> {
               icon: IconTheme(
                   data: IconThemeData(color: Colors.white, size: 25),
                   child: Icon(Icons.menu)),
-              onPressed: () {
-                Navigator.of(context).pushNamed(AppRoutes.profilepage);
-              })
+              onPressed: () {})
         ],
         backgroundColor: AppColors.mainColor,
       ),
@@ -120,7 +117,6 @@ class _JourneyPageState extends State<JourneyPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
-                        enabled: isEdditingEnabled,
                         controller: titlecontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -144,7 +140,6 @@ class _JourneyPageState extends State<JourneyPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
-                        enabled: isEdditingEnabled,
                         controller: descriptioncontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -169,7 +164,6 @@ class _JourneyPageState extends State<JourneyPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
-                        enabled: isEdditingEnabled,
                         controller: locationcontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -189,14 +183,6 @@ class _JourneyPageState extends State<JourneyPage> {
                       SizedBox(
                         height: 30,
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isEdditingEnabled = true; // Enable text fields
-                          });
-                        },
-                        child: Text('Enable Editing'),
-                      ),
                       SizedBox(
                         height: 10,
                       ),
@@ -206,17 +192,18 @@ class _JourneyPageState extends State<JourneyPage> {
                           width: width * 0.3,
                           child: ElevatedButton(
                               onPressed: () async {
-                                if (isEdditingEnabled) {
-                                  await journeyServices
-                                      ?.addOrUpdateJourneyInsideTheNote(
-                                          title: titlecontroller.text,
-                                          description:
-                                              descriptioncontroller.text,
-                                          locations: locationcontroller.text);
-                                }
-                                setState(() {
-                                  isEdditingEnabled = false;
-                                });
+                                JourneyServices()
+                                    .createJourneyInJourneyCollection(
+                                  Journey(
+                                    title: titlecontroller.text,
+                                    journeyDescription:
+                                        descriptioncontroller.text,
+                                    journeyLocations: locationcontroller.text,
+                                    noteId: widget.note!.noteId,
+                                    colorId: widget.note!.colorId,
+                                    date: widget.note!.date,
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 primary: AppColors.mainColor,

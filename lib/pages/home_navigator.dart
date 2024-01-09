@@ -1,11 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/components/bottom_navigation_bar.dart';
-import 'package:travel_journal/pages/Journey/journey_page.dart';
+import 'package:travel_journal/models/firebase_user_model.dart';
+import 'package:travel_journal/pages/Journey/journey_add_page.dart';
 import 'package:travel_journal/pages/Map/map_page.dart';
 import 'package:travel_journal/pages/Notes/notes_home.dart';
 import 'package:travel_journal/pages/Profile/profile_page.dart';
 import 'package:travel_journal/pages/Weather/weather_page.dart';
+import 'package:travel_journal/services/auth/auth.dart';
 
 class HomeNavigator extends StatefulWidget {
   const HomeNavigator({super.key});
@@ -16,9 +18,20 @@ class HomeNavigator extends StatefulWidget {
 
 class _HomeNavigatorState extends State<HomeNavigator> {
   Menus currentIndex = Menus.home;
+  AuthService authService = AuthService();
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late Future<UserWithCredentials?> user;
+
+  //getcurrent user detils
+
+  @override
+  void initState() {
+    super.initState();
+    
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       body: pages[currentIndex.index],
       bottomNavigationBar: MyBottonNavigation(
@@ -36,7 +49,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   final pages = [
     NoteHomePage(),
     WeatherPage(),
-    JourneyPage(),
+    JourneyAddPage(),
     MapPage(),
     ProfilePage(),
   ];

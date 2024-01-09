@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_colors.dart';
+import 'package:travel_journal/models/firebase_user_model.dart';
 import 'package:travel_journal/pages/Autheticate/authentication.dart';
 import 'package:travel_journal/services/auth/auth.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({
+  final UserWithCredentials? userWithCredentials;
+  ProfilePage({
+    this.userWithCredentials,
     super.key,
   });
 
@@ -13,15 +16,31 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _AppSetUpPageState extends State<ProfilePage> {
-  AuthService _auth = AuthService();
-  final bool _isSigning = false;
-  String _email = '';
-  String _password = '';
+  bool isEditingEnabled = false;
+  TextEditingController username = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
   String _error = '';
-
   bool _obscureText = true;
+
+  void loadData() async {
+    // Update TextEditingControllers if userWithCredentials data exists
+    if (widget.userWithCredentials != null) {
+      username.text = widget.userWithCredentials!.username!;
+      email.text = widget.userWithCredentials!.email!;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -33,7 +52,11 @@ class _AppSetUpPageState extends State<ProfilePage> {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                isEditingEnabled = true;
+              });
+            },
             icon: const Icon(
               Icons.edit,
               color: Colors.white,
@@ -42,7 +65,7 @@ class _AppSetUpPageState extends State<ProfilePage> {
           ),
           IconButton(
               onPressed: () async {
-                await _auth.signOut();
+                await _authService.signOut();
                 const Authenticate();
               },
               icon: Icon(
@@ -113,9 +136,7 @@ class _AppSetUpPageState extends State<ProfilePage> {
                   Container(
                     margin: EdgeInsets.only(left: 15, right: 15),
                     child: TextFormField(
-                      // validator: (value) => value?.isEmpty == true
-                      //     ? 'Enter your User Name'
-                      //     : null,
+                      enabled: isEditingEnabled,
                       keyboardType: TextInputType.name,
                       decoration: InputDecoration(
                         errorStyle: TextStyle(color: Colors.white),

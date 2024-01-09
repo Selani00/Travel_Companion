@@ -10,9 +10,9 @@ class PlanServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   NoteServices noteServices = NoteServices();
 
-  PlanServices({required this.note});
+  PlanServices({this.note});
 
-  Future<bool> createPlanInPlansCollection(Plan plan) async {
+  Future<bool> createPlanInPlansCollection(String plantitle, String planDescription, String planLocations) async {
     try {
       await _firestore
           .collection('Users')
@@ -22,9 +22,9 @@ class PlanServices {
           .collection('Plan')
           .add({
         'noteId': note!.noteId,
-        'title': plan.title,
-        'planDescription': plan.planDescription,
-        'planLocations': plan.planLocations,
+        'title': plantitle,
+        'planDescription': planDescription,
+        'planLocations': planLocations,
         'date': Timestamp.now(),
         'colorId': note!.colorId
       });
@@ -123,32 +123,5 @@ class PlanServices {
     }
   }
 
-  //add or update function
-  Future<int> addOrUpdatePlanInsideTheNote(
-      {required String title,
-      required String description,
-      required String locations}) async {
-    try {
-      List<Plan>? plan = await getPlanInsideTheNote();
-      if (plan != null && plan.isNotEmpty) {
-        print("update triggered");
-        await updatePlanInPlansCollection(
-            title: title, description: description, locations: locations);
-        return 1;
-      } else {
-        await createPlanInPlansCollection(Plan(
-          title: title,
-          planDescription: description,
-          planLocations: locations,
-          noteId: note!.noteId,
-          colorId: note!.colorId,
-          date: note!.date,
-        ));
-        return 2;
-      }
-    } catch (e) {
-      print(e);
-      return 0;
-    }
-  }
+  
 }

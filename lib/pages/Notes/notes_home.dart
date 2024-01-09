@@ -41,32 +41,27 @@ class _HomeScreenState extends State<NoteHomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0.0,
-        title: Row(
-          children: [
-            Spacer(),
-            Text("Your Plans and Journeys",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
-            const Spacer(),
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pushNamed(AppRoutes.reminderspage);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black),
-                height: height * 0.05,
-                width: height * 0.05,
-                child: Icon(Icons.notifications, color: Colors.white),
-              ),
+        title: Row(children: [
+          Spacer(),
+          Text("Your Plans and Journeys",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
+          const Spacer(),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed(AppRoutes.reminderspage);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), color: Colors.black),
+              height: height * 0.05,
+              width: height * 0.05,
+              child: Icon(Icons.notifications, color: Colors.white),
             ),
-          ],
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.mainColor,
+          )
+        ]),
       ),
       body: Stack(children: [
         Column(children: [

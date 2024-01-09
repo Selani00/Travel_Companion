@@ -15,36 +15,16 @@ class PlanAddPage extends StatefulWidget {
 }
 
 class _PlanAddPageState extends State<PlanAddPage> {
-  PlanServices? planServices;
-  List<Plan>? plan;
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
-  bool isEdditingEnabled = false;
-  int? isDone = 0;
+  PlanServices? planServices = PlanServices();
+  bool isDone = false;
   var formKey = GlobalKey<FormState>();
-
-  void loadData() async {
-    List<Plan>? fetchPlan = await planServices?.getPlanInsideTheNote();
-
-    setState(() {
-      plan = fetchPlan;
-    });
-
-    // Update TextEditingControllers if journey data exists
-    if (plan != null && plan!.isNotEmpty) {
-      titlecontroller.text = plan![0].title ?? '';
-      descriptioncontroller.text = plan![0].planDescription ?? '';
-      locationcontroller.text = plan![0].planLocations ?? '';
-    }
-    print(plan);
-  }
 
   @override
   void initState() {
     super.initState();
-    planServices = PlanServices(note: widget.note);
-    loadData();
   }
 
   @override
@@ -122,7 +102,6 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       TextFormField(
                           controller: titlecontroller,
-                          enabled: isEdditingEnabled,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -147,7 +126,6 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       TextFormField(
                         controller: descriptioncontroller,
-                        enabled: isEdditingEnabled,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -172,7 +150,6 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       TextFormField(
                         controller: locationcontroller,
-                        enabled: isEdditingEnabled,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -196,19 +173,12 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       ElevatedButton(
                           onPressed: () async {
-                            await planServices
-                                ?.createPlanInPlansCollection(Plan(
-                              title: titlecontroller.text,
-                              planDescription: descriptioncontroller.text,
-                              planLocations: locationcontroller.text,
-                              noteId: widget.note!.noteId,
-                              date: widget.note!.date,
-                              colorId: widget.note!.colorId,
-                            ));
-                            if (isDone == 1 || isDone == 2) {
-                              setState(() {
-                                isEdditingEnabled = false;
-                              });
+                            isDone = (await planServices
+                                ?.createPlanInPlansCollection(
+                                    titlecontroller.text,
+                                    descriptioncontroller.text,
+                                    locationcontroller.text))!;
+                            if (isDone) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text("Action Completed"),
@@ -220,8 +190,7 @@ class _PlanAddPageState extends State<PlanAddPage> {
                             }
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      JourneyAddPage(note: widget.note)),
+                                  builder: (context) => JourneyAddPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -255,16 +224,6 @@ class _PlanAddPageState extends State<PlanAddPage> {
                           )),
                       SizedBox(
                         height: 20,
-                      ),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isEdditingEnabled = true; // Enable text fields
-                            });
-                          },
-                          child: Text('Enable Editing'),
-                        ),
                       ),
                     ],
                   ),

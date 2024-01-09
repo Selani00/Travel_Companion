@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
 
@@ -81,7 +80,7 @@ class AuthService {
   Future<bool> createUserInUsersCollection(
       UserWithCredentials userWithCredentials) async {
     try {
-      await _firestore.collection('Users').add({
+      await _firestore.collection('Users').doc(_auth.currentUser!.uid).set({
         'email': userWithCredentials.email,
         'id': _auth.currentUser!.uid,
         'username': userWithCredentials.username,
@@ -94,7 +93,6 @@ class AuthService {
   }
 
   //UserWithCredentials return
-  
 
   //gmail signup
   Future<bool> signInWithGoogle() async {

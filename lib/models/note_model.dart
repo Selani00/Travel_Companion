@@ -1,7 +1,7 @@
 class Note {
   String noteId;
   String title;
-  String date;
+  DateTime date;
   String colorId;
 
   Note({

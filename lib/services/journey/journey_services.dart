@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
@@ -9,12 +12,14 @@ class JourneyServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   NoteServices noteServices = NoteServices();
+  int colorId = Random().nextInt(AppColors.cardsColors.length);
 
   //constructor
   JourneyServices({this.note});
 
   //creation
-  Future<bool> createJourneyInJourneyCollection(Journey journey) async {
+  Future<bool> createJourneyInJourneyCollection(
+      String title, String journeyDescription, String journeyLocations) async {
     try {
       String noteId = await noteServices.createNoteInNotesCollection();
       await _firestore
@@ -24,19 +29,20 @@ class JourneyServices {
           .doc(noteId)
           .collection('Journey')
           .add({
-        'noteId': note!.noteId,
-        'title': journey.title,
-        'journeyDescription': journey.journeyDescription,
-        'journeyLocations': journey.journeyLocations,
+        'noteId': noteId,
+        'title': title,
+        'journeyDescription': journeyDescription,
+        'journeyLocations': journeyLocations,
         'date': Timestamp.now(),
+        'colorId': colorId.toString(),
       });
       await _firestore
           .collection('Users')
           .doc(_auth.currentUser!.uid)
           .collection('Notes')
-          .doc(note!.noteId)
+          .doc(noteId)
           .update({
-        'title': journey.title,
+        'title': title,
       });
       print("Note added");
       return true;

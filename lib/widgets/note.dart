@@ -33,7 +33,7 @@ Widget noteCard(Function()? onTap, Note note) {
             height: 4.0,
           ),
           Text(
-            note.date,
+            '${note.date.toLocal()}',
             style: AppColors.dateTitle,
           ),
           SizedBox(

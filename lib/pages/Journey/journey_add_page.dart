@@ -1,51 +1,33 @@
+import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/config/app_images.dart';
-import 'package:travel_journal/models/journey.dart';
-import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyAddPage extends StatefulWidget {
-  JourneyAddPage({this.note, super.key});
-  Note? note;
+  JourneyAddPage({super.key});
 
   @override
   State<JourneyAddPage> createState() => _JourneyPageState();
 }
 
 class _JourneyPageState extends State<JourneyAddPage> {
-  JourneyServices? journeyServices;
-  List<Journey>? journey;
+  List<String> imagesList = [];
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
-  bool isEdditingEnabled = false;
   var formKey = GlobalKey<FormState>();
-
-  void loadData() async {
-    List<Journey>? fetchedJourney =
-        await journeyServices?.getJourneyInsideTheNote();
-
-    setState(() {
-      journey = fetchedJourney;
-    });
-
-    // Update TextEditingControllers if journey data exists
-    if (journey != null && journey!.isNotEmpty) {
-      titlecontroller.text = journey![0].title ?? '';
-      descriptioncontroller.text = journey![0].journeyDescription ?? '';
-      locationcontroller.text = journey![0].journeyLocations ?? '';
-    }
-    print(journey);
-  }
+  JourneyServices journeyServices = JourneyServices();
 
   @override
   void initState() {
     super.initState();
-    journeyServices = JourneyServices(note: widget.note);
-    loadData();
+    loadImagesFromPrefs();
   }
 
   @override
@@ -53,49 +35,67 @@ class _JourneyPageState extends State<JourneyAddPage> {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.grey[500],
-      appBar: AppBar(
-        elevation: 0.0,
-        leading: IconTheme(
-          data: IconThemeData(
-            color: Colors.white,
-            size: 25,
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Colors.grey[500],
+        appBar: AppBar(
+          elevation: 0.0,
+          leading: IconTheme(
+            data: IconThemeData(
+              color: Colors.white,
+              size: 25,
+            ),
+            child: GestureDetector(
+                onTap: () {
+                  HomeNavigator();
+                },
+                child: Icon(Icons.arrow_back)),
           ),
-          child: GestureDetector(
-              onTap: () {
-                HomeNavigator();
-              },
-              child: Icon(Icons.arrow_back)),
+          title: Text("Journey Plan",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25,
+                  fontWeight: FontWeight.normal)),
+          actions: [
+            IconButton(
+                icon: IconTheme(
+                    data: IconThemeData(color: Colors.white, size: 25),
+                    child: Icon(Icons.menu)),
+                onPressed: () {})
+          ],
+          backgroundColor: AppColors.mainColor,
         ),
-        title: Text("Journey Plan",
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 25,
-                fontWeight: FontWeight.normal)),
-        actions: [
-          IconButton(
-              icon: IconTheme(
-                  data: IconThemeData(color: Colors.white, size: 25),
-                  child: Icon(Icons.menu)),
-              onPressed: () {})
-        ],
-        backgroundColor: AppColors.mainColor,
-      ),
-      body: Container(
-        width: width,
-        height: height,
-        child: Form(
-          key: formKey,
-          child: ListView(
-            children: [
+        body: Container(
+          width: width,
+          height: height,
+          child: Form(
+            key: formKey,
+            child: ListView(children: [
               Container(
-                  height: height * 0.3,
-                  width: width,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(AppImages.onetimesecond),
-                          fit: BoxFit.cover))),
+                height: height * 0.3,
+                width: width,
+                child: CarouselSlider.builder(
+                  options: CarouselOptions(
+                    height: 400.0,
+                    autoPlay: true,
+                    viewportFraction: 1,
+                    enableInfiniteScroll: false,
+                    reverse: true,
+                    autoPlayInterval: Duration(seconds: 2),
+                  ),
+                  itemCount: imagesList.length,
+                  itemBuilder: (context, index, realIndex) {
+                    final assetsImage = imagesList[index];
+
+                    return buildImages(assetsImage, index);
+                  },
+                ),
+              ),
+              FloatingActionButton(
+                onPressed: () async {
+                  await pickImages();
+                },
+                child: Icon(Icons.add),
+              ),
               Container(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -192,18 +192,22 @@ class _JourneyPageState extends State<JourneyAddPage> {
                           width: width * 0.3,
                           child: ElevatedButton(
                               onPressed: () async {
-                                JourneyServices()
+                                bool journeyCreated = await journeyServices
                                     .createJourneyInJourneyCollection(
-                                  Journey(
-                                    title: titlecontroller.text,
-                                    journeyDescription:
+                                        titlecontroller.text,
                                         descriptioncontroller.text,
-                                    journeyLocations: locationcontroller.text,
-                                    noteId: widget.note!.noteId,
-                                    colorId: widget.note!.colorId,
-                                    date: widget.note!.date,
-                                  ),
-                                );
+                                        locationcontroller.text);
+                                if (journeyCreated) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("Journey Added Successfully"),
+                                      duration: Duration(
+                                          seconds:
+                                              2), // Adjust the duration as needed
+                                    ),
+                                  );
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 primary: AppColors.mainColor,
@@ -226,8 +230,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                               onPressed: () async {
                                 await Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          PlanAddPage(note: widget.note)),
+                                      builder: (context) => PlanAddPage()),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
@@ -259,10 +262,44 @@ class _JourneyPageState extends State<JourneyAddPage> {
                   ),
                 ),
               ),
-            ],
+            ]),
           ),
-        ),
-      ),
-    );
+        ));
   }
+
+  Future<void> pickImages() async {
+    List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
+
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      setState(() {
+        imagesList = pickedFiles.map((file) => file.path).toList();
+      });
+
+      saveImagesToPrefs();
+    }
+  }
+
+  void saveImagesToPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('imagesList', imagesList);
+  }
+
+  void loadImagesFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? storedImages = prefs.getStringList('imagesList');
+
+    if (storedImages != null) {
+      setState(() {
+        imagesList = storedImages;
+      });
+    }
+  }
+
+  Widget buildImages(String imagePath, int index) => Container(
+        color: Colors.grey,
+        child: Image.file(
+          File(imagePath),
+          fit: BoxFit.cover,
+        ),
+      );
 }

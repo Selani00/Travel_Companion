@@ -64,7 +64,8 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
               onTap: () async {
                 await Navigator.of(context).push(
                   MaterialPageRoute(
-                      builder: (context) => JourneyUpdatePage(note: widget.note)),
+                      builder: (context) =>
+                          JourneyUpdatePage(note: widget.note)),
                 );
               },
               child: Icon(Icons.arrow_back)),
@@ -195,11 +196,10 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
                       ElevatedButton(
                           onPressed: () async {
                             if (isEdditingEnabled) {
-                              isDone = await planServices
-                                  ?.addOrUpdatePlanInsideTheNote(
-                                      title: titlecontroller.text,
-                                      description: descriptioncontroller.text,
-                                      locations: locationcontroller.text);
+                              await planServices?.updatePlanInPlansCollection(
+                                  title: titlecontroller.text,
+                                  description: descriptioncontroller.text,
+                                  locations: locationcontroller.text);
                             }
                             if (isDone == 1 || isDone == 2) {
                               setState(() {

@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/config/app_colors.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
 import 'package:travel_journal/pages/Autheticate/authentication.dart';
@@ -24,6 +27,8 @@ class _AppSetUpPageState extends State<ProfilePage> {
   final AuthService _authService = AuthService();
   String _error = '';
   bool _obscureText = true;
+  File? _image;
+  String? _imagepath;
 
   void loadData() async {
     // Update TextEditingControllers if userWithCredentials data exists
@@ -36,10 +41,9 @@ class _AppSetUpPageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    LoadImage();
     loadData();
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -236,5 +240,30 @@ class _AppSetUpPageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> pickImage() async {
+    final imagePicker = ImagePicker();
+    final pickedImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _image = File(pickedImage.path);
+        _imagepath = pickedImage.path;
+      });
+    }
+  }
+
+  Future<void> SaveImage(path) async {
+    SharedPreferences saveImage = await SharedPreferences.getInstance();
+    saveImage.setString("imagepath", path);
+  }
+
+  Future<void> LoadImage() async {
+    SharedPreferences saveImage = await SharedPreferences.getInstance();
+    setState(() {
+      _imagepath = saveImage.getString("imagepath");
+    });
   }
 }

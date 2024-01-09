@@ -17,7 +17,9 @@ class NoteServices {
           .doc(_auth.currentUser!.uid)
           .collection('Notes')
           .add({
-        'date': Timestamp.now().toString(),
+        'noteId': '',
+        'title': 'New Note',
+        'date': DateTime.now(),
         'colorId': color_id.toString(),
       });
       await _firestore
@@ -26,6 +28,7 @@ class NoteServices {
           .collection('Notes')
           .doc(docRef.id)
           .update({'noteId': docRef.id});
+      print("Note added");
       return docRef.id;
     } catch (e) {
       print(e);
@@ -48,7 +51,7 @@ class NoteServices {
       List<Note> notes = querySnapshot.docs
           .map((doc) => Note(
                 noteId: doc['noteId'],
-                date: doc['date'],
+                date: (doc['date'] as Timestamp).toDate(),
                 title: doc['title'],
                 colorId: doc['colorId'],
               ))

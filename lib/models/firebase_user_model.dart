@@ -1,15 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:travel_journal/models/user_model.dart';
 
-class UserWithCredentials extends UserModel{
+class FireStoreUser extends UserModel{
   String? email;
   String? username;
 
-  UserWithCredentials({required super.uid,  this.email,  this.username});
+  FireStoreUser({required super.uid,  this.email,  this.username});
 
-  static Future<UserWithCredentials?> fromMap(Object? documentData) {
+  static Future<FireStoreUser ?> fromMap(Object? documentData) {
     documentData as Map<String, dynamic>;
-    return Future.value(UserWithCredentials(
+    return Future.value(FireStoreUser(
       uid: documentData['uid'],
       email: documentData['email'],
       username: documentData['username'],

@@ -38,31 +38,7 @@ class NoteServices {
 
   //get current id of the note
 
-  //
-  Future<List<Note>> getAllNotes() async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('Users')
-          .doc(_auth.currentUser!.uid)
-          .collection('Notes')
-          .orderBy('date', descending: true)
-          .get();
-
-      List<Note> notes = querySnapshot.docs
-          .map((doc) => Note(
-                noteId: doc['noteId'],
-                date: (doc['date'] as Timestamp).toDate(),
-                title: doc['title'],
-                colorId: doc['colorId'],
-              ))
-          .toList();
-      print(notes);
-      return notes;
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
+  
 
   Stream<List<Note>> getNotesStream() {
     try {

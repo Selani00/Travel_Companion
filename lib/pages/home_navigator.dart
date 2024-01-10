@@ -20,7 +20,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   Menus currentIndex = Menus.home;
   AuthService authService = AuthService();
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late Future<UserWithCredentials?> user;
+  late Future<FireStoreUser?> user;
 
   //getcurrent user detils
 

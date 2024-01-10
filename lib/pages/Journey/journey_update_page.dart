@@ -4,6 +4,7 @@ import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
+import 'package:travel_journal/pages/Plans/plan_update_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
@@ -90,12 +91,13 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
           child: ListView(
             children: [
               Container(
-                  height: height * 0.3,
-                  width: width,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(AppImages.onetimesecond),
-                          fit: BoxFit.cover))),
+                height: height * 0.3,
+                width: width,
+                // decoration: BoxDecoration(
+                //     image: DecorationImage(
+                //         image: AssetImage(AppImages.onetimesecond),
+                //         fit: BoxFit.cover))
+              ),
               Container(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -234,7 +236,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
                                 await Navigator.of(context).push(
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          PlanAddPage(note: widget.note)),
+                                          PlanUpdatePage(note: widget.note)),
                                 );
                               },
                               style: ElevatedButton.styleFrom(

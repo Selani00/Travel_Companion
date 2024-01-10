@@ -18,7 +18,7 @@ class JourneyServices {
   JourneyServices({this.note});
 
   //creation
-  Future<bool> createJourneyInJourneyCollection(
+  Future<String> createJourneyInJourneyCollection(
       String title, String journeyDescription, String journeyLocations) async {
     try {
       String noteId = await noteServices.createNoteInNotesCollection();
@@ -44,11 +44,12 @@ class JourneyServices {
           .update({
         'title': title,
       });
+
       print("Note added");
-      return true;
+      return noteId;
     } catch (e) {
       print(e);
-      return false;
+      return "can't add notes";
     }
   }
 
@@ -102,6 +103,15 @@ class JourneyServices {
           'journeyDescription': description,
           'journeyLocations': locations
         });
+        await _firestore
+            .collection('Users')
+            .doc(_auth.currentUser!.uid)
+            .collection('Notes')
+            .doc(note!.noteId)
+            .update({
+          'title': title,
+        });
+        print(note!.noteId);
         print('Journey updated successfully!');
       } else {
         print('No Journey found with the provided noteId.');
@@ -139,30 +149,5 @@ class JourneyServices {
     }
   }
 
-  //add or update function
-  // Future<bool> addOrUpdateJourneyInsideTheNote(
-  //     {required String title,
-  //     required String description,
-  //     required String locations}) async {
-  //   try {
-  //     List<Journey>? journey = await getJourneyInsideTheNote();
-  //     if (journey != null && journey.isNotEmpty) {
-  //       print("update triggered");
-  //       return await updateJourneyInsideTheNote(
-  //           title: title, description: description, locations: locations);
-  //     } else {
-  //       return await createJourneyInJourneyCollection(Journey(
-  //         title: title,
-  //         journeyDescription: description,
-  //         journeyLocations: locations,
-  //         noteId: note!.noteId,
-  //         colorId: note!.colorId,
-  //         date: note!.date,
-  //       ));
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //     return false;
-  //   }
-  // }
+ 
 }

@@ -12,13 +12,14 @@ class PlanServices {
 
   PlanServices({this.note});
 
-  Future<bool> createPlanInPlansCollection(String plantitle, String planDescription, String planLocations) async {
+  Future<bool> createPlanInPlansCollection(
+      String plantitle, String planDescription, String planLocations) async {
     try {
       await _firestore
           .collection('Users')
           .doc(_auth.currentUser!.uid)
           .collection('Notes')
-          .doc(note?.noteId)
+          .doc(note!.noteId)
           .collection('Plan')
           .add({
         'noteId': note!.noteId,
@@ -28,6 +29,7 @@ class PlanServices {
         'date': Timestamp.now(),
         'colorId': note!.colorId
       });
+      print("Plan added");
       return true;
     } catch (e) {
       print(e);
@@ -49,7 +51,7 @@ class PlanServices {
       List<Plan> journey = querySnapshot.docs
           .map((doc) => Plan(
                 noteId: doc['noteId'],
-                date: doc['date'],
+                date: (doc['date'] as Timestamp).toDate(),
                 colorId: doc['colorId'],
                 planDescription: doc['planDescription'],
                 planLocations: doc['planLocations'],
@@ -65,7 +67,7 @@ class PlanServices {
   }
 
   //update plan
-  Future<bool> updatePlanInPlansCollection(
+  Future<int> addOrupdatePlanInPlansCollection(
       {required String title,
       required String description,
       required String locations}) async {
@@ -78,7 +80,7 @@ class PlanServices {
           .collection('Plan')
           .where('noteId', isEqualTo: note!.noteId)
           .get();
-
+      print("Plan Found");
       if (querySnapshot.docs.isNotEmpty) {
         // Update the title of the first matching document
         querySnapshot.docs.first.reference.update({
@@ -87,13 +89,28 @@ class PlanServices {
           'planLocations': locations
         });
         print('Plan updated successfully!');
+        return 1;
       } else {
-        print('No Plan found with the provided noteId.');
+        await _firestore
+            .collection('Users')
+            .doc(_auth.currentUser!.uid)
+            .collection('Notes')
+            .doc(note!.noteId)
+            .collection('Plan')
+            .add({
+          'noteId': note!.noteId,
+          'title': title,
+          'planDescription': description,
+          'planLocations': locations,
+          'date': Timestamp.now(),
+          'colorId': note!.colorId
+        });
+        print("Plan added");
+        return 2;
       }
-      return true;
     } catch (e) {
       print(e);
-      return false;
+      return 0;
     }
   }
 
@@ -122,6 +139,4 @@ class PlanServices {
       return false;
     }
   }
-
-  
 }

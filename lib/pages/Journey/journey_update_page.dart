@@ -1,11 +1,12 @@
+import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
-import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
-import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/Plans/plan_update_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
+import 'package:travel_journal/services/images/image_services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyUpdatePage extends StatefulWidget {
@@ -17,6 +18,7 @@ class JourneyUpdatePage extends StatefulWidget {
 }
 
 class _JourneyPageState extends State<JourneyUpdatePage> {
+  List<String> imagesList = [];
   JourneyServices? journeyServices;
   List<Journey>? journey;
   TextEditingController titlecontroller = TextEditingController();
@@ -28,9 +30,13 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   void loadData() async {
     List<Journey>? fetchedJourney =
         await journeyServices?.getJourneyInsideTheNote();
+    List<String> loadedImages =
+        await ImageServices().loadImages(widget.note!.noteId);
+    print(imagesList);
 
     setState(() {
       journey = fetchedJourney;
+      imagesList = loadedImages;
     });
 
     // Update TextEditingControllers if journey data exists
@@ -93,10 +99,22 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
               Container(
                 height: height * 0.3,
                 width: width,
-                // decoration: BoxDecoration(
-                //     image: DecorationImage(
-                //         image: AssetImage(AppImages.onetimesecond),
-                //         fit: BoxFit.cover))
+                child: CarouselSlider.builder(
+                  options: CarouselOptions(
+                    height: 400.0,
+                    autoPlay: true,
+                    viewportFraction: 1,
+                    enableInfiniteScroll: false,
+                    reverse: true,
+                    autoPlayInterval: Duration(seconds: 2),
+                  ),
+                  itemCount: imagesList.length,
+                  itemBuilder: (context, index, realIndex) {
+                    final assetsImage = imagesList[index];
+
+                    return buildImages(assetsImage, index);
+                  },
+                ),
               ),
               Container(
                 child: Padding(
@@ -274,4 +292,12 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
       ),
     );
   }
+
+  Widget buildImages(String imagePath, int index) => Container(
+        color: Colors.grey,
+        child: Image.file(
+          File(imagePath),
+          fit: BoxFit.cover,
+        ),
+      );
 }

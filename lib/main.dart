@@ -1,9 +1,13 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_journal/config/app_routes.dart';
 import 'package:travel_journal/firebase_options.dart';
+import 'package:travel_journal/models/note_images.dart';
 import 'package:travel_journal/models/user_model.dart';
 import 'package:travel_journal/services/Reminder/reminder_services.dart';
 import 'package:travel_journal/services/auth/auth.dart';
@@ -39,6 +43,10 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final appDocumentDir = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDir.path);
+  Hive.registerAdapter(NoteImagesAdapter());
+  await Hive.openBox<NoteImages>('notes_images');
 
   runApp(const MyApp());
 }
@@ -73,7 +81,7 @@ class _MyAppState extends State<MyApp> {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.start,
-          routes: AppRoutes.pages,));
+          routes: AppRoutes.pages,
+        ));
   }
 }
-

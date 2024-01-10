@@ -122,7 +122,7 @@ class _AppSetUpPageState extends State<ProfilePage> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              pickImage();
+                              pickImage(_image?.path);
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -256,10 +256,11 @@ class _AppSetUpPageState extends State<ProfilePage> {
     );
   }
 
-  Future<void> pickImage() async {
+  Future<void> pickImage(path) async {
     final imagePicker = ImagePicker();
     final pickedImage =
         await imagePicker.pickImage(source: ImageSource.gallery);
+    await SaveImage(path);
 
     if (pickedImage != null) {
       setState(() {

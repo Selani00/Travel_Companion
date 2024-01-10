@@ -3,11 +3,14 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/models/reminder.dart';
 
 class ReminderServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
+
 
   @pragma("vm:entry-point")
   static Future<void> onNotificationCreateMethod(
@@ -81,4 +84,6 @@ class ReminderServices {
       return false;
     }
   }
+
+  
 }

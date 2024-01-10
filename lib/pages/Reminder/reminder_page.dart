@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/reminder.dart';
 import 'package:travel_journal/services/Reminder/reminder_services.dart';
@@ -12,6 +13,7 @@ class RemindersPage extends StatefulWidget {
 
 class _RemindersPageState extends State<RemindersPage> {
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   late DateTime selectedDateTime;
 
   @override
@@ -72,52 +74,50 @@ class _RemindersPageState extends State<RemindersPage> {
             SizedBox(
               height: 20,
             ),
-            Row(
-              children: [
-                Text(
-                  "Date: ${selectedDateTime.day}/${selectedDateTime.month}/${selectedDateTime.year} Time:${selectedDateTime.hour}:${selectedDateTime.minute < 10 ? '0${selectedDateTime.minute}' : selectedDateTime}",
-                  style: TextStyle(color: Colors.black, fontSize: 18),
-                ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () async {
-                    // Show date and time picker
-                    DateTime? pickedDateTime = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDateTime,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-
-                    if (pickedDateTime != null) {
-                      TimeOfDay? pickedTime = await showTimePicker(
+            TextFormField(
+              controller: dateController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                errorStyle: TextStyle(color: Colors.white),
+                prefixIcon: GestureDetector(
+                    onTap: () async {
+                      // Show date and time picker
+                      DateTime? pickedDateTime = await showDatePicker(
                         context: context,
-                        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+                        initialDate: selectedDateTime,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
                       );
 
-                      if (pickedTime != null) {
-                        pickedDateTime = DateTime(
-                          pickedDateTime.year,
-                          pickedDateTime.month,
-                          pickedDateTime.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
+                      if (pickedDateTime != null) {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(selectedDateTime),
                         );
 
-                        setState(() {
-                          selectedDateTime = pickedDateTime!;
-                          print(selectedDateTime);
-                        });
+                        if (pickedTime != null) {
+                          pickedDateTime = DateTime(
+                            pickedDateTime.year,
+                            pickedDateTime.month,
+                            pickedDateTime.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+
+                          setState(() {
+                            selectedDateTime = pickedDateTime!;
+                            dateController.text = DateFormat('yyyy-MM-dd HH:mm')
+                                .format(pickedDateTime);
+                          });
+                        }
                       }
-                    }
-                  },
-                  child: Icon(
-                    Icons.calendar_month_rounded,
-                    color: AppColors.mainColor,
-                    size: 35,
-                  ),
+                    },
+                    child: Icon(Icons.calendar_month_rounded)),
+                hintText: "Data and Time",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+              ),
             ),
             SizedBox(
               height: 30,

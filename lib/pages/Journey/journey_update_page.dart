@@ -106,7 +106,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
                         height: 10,
                       ),
                       Text(
-                        "Data and time",
+                        "Created Date:${journey?[0].date.day}/${journey?[0].date.month}/${journey?[0].date.year} Created Time:${journey?[0].date.hour}:${journey?[0].date.minute}",
                         style: TextStyle(color: Colors.black, fontSize: 16),
                       ),
                       SizedBox(

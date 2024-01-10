@@ -23,6 +23,8 @@ class MyBottonNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return Container(
       height: 70,
       margin: const EdgeInsets.all(20),
@@ -69,17 +71,29 @@ class MyBottonNavigation extends StatelessWidget {
               ]),
             ),
           ),
-          Center(
+          Positioned(
+            top: 18,
+            left: width * 0.42,
             child: GestureDetector(
               onTap: () => onTap(Menus.add),
-              child: SizedBox(
-                height: 70,
-                child: SvgPicture.asset(
-                  AppImages.ic_add,
-                  colorFilter: ColorFilter.mode(
-                      currentIndex == Menus.add ? Colors.amber : Colors.white,
-                      BlendMode.srcIn),
-                ),
+              child: Column(
+                children: [
+                  SvgPicture.asset(
+                    height: 35,
+                    width: 30,
+                    AppImages.ic_add,
+                    colorFilter: ColorFilter.mode(
+                        currentIndex == Menus.add ? Colors.amber : Colors.white,
+                        BlendMode.srcIn),
+                  ),
+                  Text(
+                    "Add",
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  )
+                ],
               ),
             ),
           )

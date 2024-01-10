@@ -66,7 +66,7 @@ class JourneyServices {
       List<Journey> journey = querySnapshot.docs
           .map((doc) => Journey(
                 noteId: doc['noteId'],
-                date: doc['date'],
+                date: (doc['date'] as Timestamp).toDate(),
                 colorId: doc['colorId'],
                 journeyDescription: doc['journeyDescription'],
                 journeyLocations: doc['journeyLocations'],

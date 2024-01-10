@@ -15,30 +15,85 @@ Widget noteCard(Function()? onTap, Note note) {
   return InkWell(
     onTap: onTap,
     child: Container(
+      width: double.infinity,
       height: 100,
-      width: 100,
-      padding: EdgeInsets.all(8.0),
-      margin: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: selectedColor,
-        borderRadius: BorderRadius.circular(8.0),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
-      child: ListView(
+      child: Row(
         children: [
-          Text(
-            note.title,
-            style: AppColors.mainTitle,
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+              color: selectedColor,
+            ),
+            width: 30,
           ),
           SizedBox(
-            height: 4.0,
+            width: 10,
           ),
-          Text(
-            '${note.date.toLocal()}',
-            style: AppColors.dateTitle,
-          ),
-          SizedBox(
-            height: 8.0,
-          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  note.title,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Spacer(),
+                Container(
+                  height: 1,
+                  width: double.infinity * 0.8,
+                  color: Colors.black,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Created Date:${note.date.toLocal().day}/${note.date.toLocal().month}/${note.date.toLocal().year} Created Time:${note.date.toLocal().hour}:${note.date.toLocal().minute}',
+                        style: TextStyle(
+                            color: Color(0xF7373535),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 35,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          )
         ],
       ),
     ),

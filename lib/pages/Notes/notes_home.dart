@@ -40,6 +40,7 @@ class _HomeScreenState extends State<NoteHomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        backgroundColor: AppColors.mainColor,
         elevation: 0.0,
         title: Row(children: [
           Spacer(),
@@ -83,24 +84,32 @@ class _HomeScreenState extends State<NoteHomePage> {
           ),
           SizedBox(height: height * 0.02),
           Expanded(
-            child: FutureBuilder<List<Note>>(
-                future: notesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return noteCard(
-                              () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (context) => JourneyUpdatePage(
-                                          note: snapshot.data![index]))),
-                              snapshot.data![index]);
-                        });
-                  } else {
-                    return Center(child: Text("No Documents Yet"));
-                  }
-                }),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FutureBuilder<List<Note>>(
+                  future: notesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              padding: EdgeInsets.all(8),
+                              child: noteCard(
+                                  () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              JourneyUpdatePage(
+                                                  note:
+                                                      snapshot.data![index]))),
+                                  snapshot.data![index]),
+                            );
+                          });
+                    } else {
+                      return Center(child: Text("No Documents Yet"));
+                    }
+                  }),
+            ),
           ),
         ]),
       ]),

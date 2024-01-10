@@ -59,6 +59,7 @@ dependencies:
   google_sign_in: ^6.2.1
   image_picker: ^1.0.7
   carousel_slider: ^4.2.1
+  flutter_launcher_icons: ^0.13.1
   
 
 
@@ -90,6 +91,7 @@ flutter:
     - assets/images/
     - assets/svg/
 
+  
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -116,3 +118,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: "AppIcon"
+  image_path: "assets/images/applogo.png"
+  min_sdk_android: 23
+  remove_alpha_ios: true

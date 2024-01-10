@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/components/app_colors.dart';
-import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
@@ -21,6 +20,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
+  bool addingFinish = true;
   var formKey = GlobalKey<FormState>();
   JourneyServices journeyServices = JourneyServices();
 
@@ -46,7 +46,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
             ),
             child: GestureDetector(
                 onTap: () {
-                  HomeNavigator();
+                   HomeNavigator();
                 },
                 child: Icon(Icons.arrow_back)),
           ),
@@ -117,6 +117,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
+                        enabled: addingFinish,
                         controller: titlecontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -140,6 +141,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
+                        enabled: addingFinish,
                         controller: descriptioncontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -164,6 +166,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                       TextFormField(
+                        enabled: addingFinish,
                         controller: locationcontroller,
                         style: TextStyle(
                           color: Colors.black,
@@ -198,13 +201,16 @@ class _JourneyPageState extends State<JourneyAddPage> {
                                         descriptioncontroller.text,
                                         locationcontroller.text);
                                 if (journeyCreated) {
+                                  setState(() {
+                                    addingFinish = false;
+                                  });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content:
                                           Text("Journey Added Successfully"),
                                       duration: Duration(
                                           seconds:
-                                              2), // Adjust the duration as needed
+                                              3), // Adjust the duration as needed
                                     ),
                                   );
                                 }

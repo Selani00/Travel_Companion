@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/config/app_colors.dart';
+import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
 import 'package:travel_journal/pages/Autheticate/authentication.dart';
 import 'package:travel_journal/services/auth/auth.dart';
@@ -97,9 +98,18 @@ class _AppSetUpPageState extends State<ProfilePage> {
                 Center(
                   child: Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 90,
-                      ),
+                      _imagepath != null && _imagepath!.isNotEmpty
+                          ? CircleAvatar(
+                              backgroundImage: FileImage(File(_imagepath!)),
+                              radius: 80,
+                            )
+                          : CircleAvatar(
+                              backgroundImage: _image != null
+                                  ? FileImage(_image!)
+                                  : AssetImage(AppImages.startImg)
+                                      as ImageProvider<Object>?,
+                              radius: 80,
+                            ),
                       Positioned(
                         bottom: 1,
                         right: 1,
@@ -111,7 +121,9 @@ class _AppSetUpPageState extends State<ProfilePage> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              pickImage();
+                            },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
                               shape: RoundedRectangleBorder(
@@ -222,7 +234,9 @@ class _AppSetUpPageState extends State<ProfilePage> {
                     style: ElevatedButton.styleFrom(
                         fixedSize: Size(width * 0.8, 60),
                         backgroundColor: AppColors.mainColor),
-                    onPressed: () async {},
+                    onPressed: () async {
+                      SaveImage(_image?.path);
+                    },
                     child: Center(
                       child: Text(
                         "Update",

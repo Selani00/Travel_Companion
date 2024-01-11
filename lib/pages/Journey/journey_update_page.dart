@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/journey.dart';
+import 'package:travel_journal/models/note_images.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_update_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
-import 'package:travel_journal/services/images/image_services.dart';
+import 'package:travel_journal/services/hive/hive_Services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyUpdatePage extends StatefulWidget {
@@ -19,7 +20,8 @@ class JourneyUpdatePage extends StatefulWidget {
 }
 
 class _JourneyPageState extends State<JourneyUpdatePage> {
-  List<String> imagesList = [];
+  NoteImages? noteImagepair;
+  List<String> imagepaths = [];
   JourneyServices? journeyServices;
   List<Journey>? journey;
   TextEditingController titlecontroller = TextEditingController();
@@ -27,18 +29,19 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   TextEditingController locationcontroller = TextEditingController();
   bool isEdditingEnabled = false;
   var formKey = GlobalKey<FormState>();
-  Box? images;
+  HiveServices hiveServices = HiveServices();
 
   void loadData() async {
     List<Journey>? fetchedJourney =
         await journeyServices?.getJourneyInsideTheNote();
-    List<String> loadedImages =
-        await ImageServices().loadImages(widget.note!.noteId);
-    print(imagesList);
+
+    noteImagepair = await hiveServices.getOnePair(widget.note!.noteId);
+
+    print(noteImagepair);
 
     setState(() {
       journey = fetchedJourney;
-      imagesList = loadedImages;
+      imagepaths = noteImagepair!.imagePaths;
     });
 
     // Update TextEditingControllers if journey data exists
@@ -53,11 +56,6 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   @override
   void initState() {
     super.initState();
-    Hive.openBox("images").then((_box) {
-      setState(() {
-        images = _box;
-      });
-    });
     journeyServices = JourneyServices(note: widget.note);
     loadData();
   }
@@ -115,11 +113,11 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
                     reverse: true,
                     autoPlayInterval: Duration(seconds: 2),
                   ),
-                  itemCount: imagesList.length,
+                  itemCount: imagepaths.length,
                   itemBuilder: (context, index, realIndex) {
-                    final assetsImage = imagesList[index];
+                    final assetsImage = imagepaths[index];
 
-                    return buildImages(assetsImage, index);
+                    return buildImages(imagepaths[index], index);
                   },
                 ),
               ),
@@ -299,8 +297,6 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
       ),
     );
   }
-
-  
 
   Widget buildImages(String imagePath, int index) => Container(
         color: Colors.grey,

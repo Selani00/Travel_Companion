@@ -1,28 +1,13 @@
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+part 'note_images.g.dart';
+
+@HiveType(typeId: 1)
 class NoteImages {
-  late String noteId;
-  late List<String> imagePaths;
-}
+  @HiveField(0)
+  final String noteId;
+  @HiveField(1)
+  final List<String> imagePaths;
 
-void registerHiveAdapters() {
-  Hive.registerAdapter(NoteImagesAdapter());
-}
-
-class NoteImagesAdapter extends TypeAdapter<NoteImages> {
-  @override
-  final typeId = 0;
-
-  @override
-  NoteImages read(BinaryReader reader) {
-    return NoteImages()
-      ..noteId = reader.read()
-      ..imagePaths = reader.readList().cast<String>();
-  }
-
-  @override
-  void write(BinaryWriter writer, NoteImages obj) {
-    writer.write(obj.noteId);
-    writer.writeList(obj.imagePaths);
-  }
+  NoteImages(this.noteId, this.imagePaths);
 }

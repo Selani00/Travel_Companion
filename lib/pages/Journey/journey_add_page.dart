@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/components/app_colors.dart';
+import 'package:travel_journal/models/note_model.dart';
+
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
+import 'package:travel_journal/services/notes/note_services.dart';
 
 class JourneyAddPage extends StatefulWidget {
-  JourneyAddPage({super.key});
+  JourneyAddPage({
+    super.key,
+  });
 
   @override
   State<JourneyAddPage> createState() => _JourneyPageState();
@@ -21,8 +26,11 @@ class _JourneyPageState extends State<JourneyAddPage> {
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
   bool addingFinish = true;
+  String journeyCreated = "";
   var formKey = GlobalKey<FormState>();
   JourneyServices journeyServices = JourneyServices();
+  NoteServices noteServices = NoteServices();
+  late Note note;
 
   @override
   void initState() {
@@ -46,7 +54,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
             ),
             child: GestureDetector(
                 onTap: () {
-                   HomeNavigator();
+                  HomeNavigator();
                 },
                 child: Icon(Icons.arrow_back)),
           ),
@@ -195,12 +203,14 @@ class _JourneyPageState extends State<JourneyAddPage> {
                           width: width * 0.3,
                           child: ElevatedButton(
                               onPressed: () async {
-                                bool journeyCreated = await journeyServices
+                                journeyCreated = await journeyServices
                                     .createJourneyInJourneyCollection(
                                         titlecontroller.text,
                                         descriptioncontroller.text,
                                         locationcontroller.text);
-                                if (journeyCreated) {
+                                note = await noteServices
+                                    .getOneNote(journeyCreated);
+                                if (journeyCreated.isNotEmpty) {
                                   setState(() {
                                     addingFinish = false;
                                   });
@@ -236,8 +246,11 @@ class _JourneyPageState extends State<JourneyAddPage> {
                               onPressed: () async {
                                 await Navigator.of(context).push(
                                   MaterialPageRoute(
-                                      builder: (context) => PlanAddPage()),
+                                      builder: (context) => PlanAddPage(
+                                            note: note,
+                                          )),
                                 );
+                                print(note);
                               },
                               style: ElevatedButton.styleFrom(
                                 primary: AppColors.mainColor,

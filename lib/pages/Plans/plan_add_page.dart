@@ -18,8 +18,8 @@ class _PlanAddPageState extends State<PlanAddPage> {
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
-  PlanServices? planServices = PlanServices();
-  bool isDone = false;
+  PlanServices planServices = PlanServices();
+  int isDone = 0;
   var formKey = GlobalKey<FormState>();
 
   @override
@@ -173,25 +173,40 @@ class _PlanAddPageState extends State<PlanAddPage> {
                       ),
                       ElevatedButton(
                           onPressed: () async {
-                            isDone = (await planServices
-                                ?.createPlanInPlansCollection(
-                                    titlecontroller.text,
-                                    descriptioncontroller.text,
-                                    locationcontroller.text))!;
-                            if (isDone) {
+                            isDone = await planServices!
+                                .addOrupdatePlanInPlansCollection(
+                                    title: titlecontroller.text,
+                                    description: descriptioncontroller.text,
+                                    locations: locationcontroller.text);
+                            if (isDone == 1) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("Action Completed"),
+                                  content: Text("Update successfully"),
                                   duration: Duration(
                                       seconds:
                                           2), // Adjust the duration as needed
                                 ),
                               );
+                            } else if (isDone == 2) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Plan added succesfully"),
+                                  duration: Duration(
+                                      seconds:
+                                          2), // Adjust the duration as needed
+                                ),
+                              );
+                            } else {
+                              throw Error();
                             }
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => JourneyAddPage()),
-                            );
+
+                            if (widget.note != null) {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        JourneyUpdatePage(note: widget.note)),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             primary: AppColors.mainColor,

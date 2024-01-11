@@ -196,10 +196,11 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
                       ElevatedButton(
                           onPressed: () async {
                             if (isEdditingEnabled) {
-                              await planServices?.updatePlanInPlansCollection(
-                                  title: titlecontroller.text,
-                                  description: descriptioncontroller.text,
-                                  locations: locationcontroller.text);
+                              isDone = await planServices
+                                  ?.addOrupdatePlanInPlansCollection(
+                                      title: titlecontroller.text,
+                                      description: descriptioncontroller.text,
+                                      locations: locationcontroller.text);
                             }
                             if (isDone == 1 || isDone == 2) {
                               setState(() {
@@ -216,8 +217,9 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
                             }
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      JourneyUpdatePage(note: widget.note)),
+                                  builder: (context) => JourneyUpdatePage(
+                                        note: widget.note,
+                                      )),
                             );
                           },
                           style: ElevatedButton.styleFrom(

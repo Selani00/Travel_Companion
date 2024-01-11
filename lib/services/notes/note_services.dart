@@ -64,5 +64,34 @@ class NoteServices {
     }
   }
 
-  
+  Future<Note> getOneNote(String Id) async {
+  try {
+    DocumentSnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+        .collection('Users')
+        .doc(_auth.currentUser!.uid)
+        .collection('Notes')
+        .doc(Id)
+        .get();
+
+    if (querySnapshot.exists) {
+      
+      Note note = Note(
+        noteId: querySnapshot['noteId'],
+        title: querySnapshot['title'],
+        date: (querySnapshot['date'] as Timestamp).toDate(),
+        colorId: querySnapshot['colorId'],
+        
+        // Add other fields according to your Note model
+      );
+      return note;
+    } else {
+      // Document with the provided ID does not exist
+      throw Exception('Document does not exist');
+    }
+  } catch (e) {
+    // Handle any potential errors
+    print(e);
+    throw Exception('Error fetching note');
+  }
+}
 }

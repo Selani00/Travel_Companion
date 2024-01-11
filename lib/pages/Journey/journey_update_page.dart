@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
@@ -26,6 +27,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   TextEditingController locationcontroller = TextEditingController();
   bool isEdditingEnabled = false;
   var formKey = GlobalKey<FormState>();
+  Box? images;
 
   void loadData() async {
     List<Journey>? fetchedJourney =
@@ -51,6 +53,11 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   @override
   void initState() {
     super.initState();
+    Hive.openBox("images").then((_box) {
+      setState(() {
+        images = _box;
+      });
+    });
     journeyServices = JourneyServices(note: widget.note);
     loadData();
   }
@@ -292,6 +299,8 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
       ),
     );
   }
+
+  
 
   Widget buildImages(String imagePath, int index) => Container(
         color: Colors.grey,

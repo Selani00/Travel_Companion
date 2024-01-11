@@ -45,9 +45,7 @@ Future<void> main() async {
   );
   final appDocumentDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDir.path);
-  Hive.registerAdapter(NoteImagesAdapter());
-  await Hive.openBox<NoteImages>('notes_images');
-
+  
   runApp(const MyApp());
 }
 

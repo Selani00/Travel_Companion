@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
@@ -31,10 +32,16 @@ class _JourneyPageState extends State<JourneyAddPage> {
   JourneyServices journeyServices = JourneyServices();
   NoteServices noteServices = NoteServices();
   late Note note;
+  Box? images;
 
   @override
   void initState() {
     super.initState();
+    Hive.openBox("images").then((_box) {
+      setState(() {
+        images = _box;
+      });
+    });
     loadImagesFromPrefs();
   }
 
@@ -286,6 +293,8 @@ class _JourneyPageState extends State<JourneyAddPage> {
           ),
         ));
   }
+
+  
 
   Widget buildImages(String imagePath, int index) => Container(
         color: Colors.grey,

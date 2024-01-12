@@ -40,13 +40,18 @@ Future<void> main() async {
   if (!isAllowedToSendNotification) {
     await AwesomeNotifications().requestPermissionToSendNotifications();
   }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   await Hive.initFlutter();
-  Hive.registerAdapter(NoteImagesAdapter());
-  final appDocumentDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDocumentDir.path);
+  await Hive.openBox('settings');
+
+
+  
+
+  
   
   runApp(const MyApp());
 }

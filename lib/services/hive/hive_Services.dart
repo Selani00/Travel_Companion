@@ -2,7 +2,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travel_journal/models/note_images.dart';
 
 class HiveServices {
-  final String _boxName = "ImagesBox";
+  static String _boxName = "ImagesBox";
+
 
   Future<Box<NoteImages>> get _box async =>
       await Hive.openBox<NoteImages>(_boxName);

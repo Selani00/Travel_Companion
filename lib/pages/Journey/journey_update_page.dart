@@ -1,14 +1,12 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_images.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_update_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
-import 'package:travel_journal/services/hive/hive_Services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyUpdatePage extends StatefulWidget {
@@ -29,19 +27,13 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   TextEditingController locationcontroller = TextEditingController();
   bool isEdditingEnabled = false;
   var formKey = GlobalKey<FormState>();
-  HiveServices hiveServices = HiveServices();
 
   void loadData() async {
     List<Journey>? fetchedJourney =
         await journeyServices?.getJourneyInsideTheNote();
 
-    noteImagepair = await hiveServices.getOnePair(widget.note!.noteId);
-
-    print(noteImagepair);
-
     setState(() {
       journey = fetchedJourney;
-      imagepaths = noteImagepair!.imagePaths;
     });
 
     // Update TextEditingControllers if journey data exists

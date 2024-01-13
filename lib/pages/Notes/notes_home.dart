@@ -41,7 +41,7 @@ class _HomeScreenState extends State<NoteHomePage> {
           elevation: 0.0,
           title: Row(children: [
             Spacer(),
-            Text("Your Plans and Journeys",
+            Text("Your Memories",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -53,8 +53,10 @@ class _HomeScreenState extends State<NoteHomePage> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black),
+                  borderRadius: BorderRadius.circular(20),
+                   
+                color: Colors.transparent,
+              ),
                 height: height * 0.05,
                 width: height * 0.05,
                 child: Icon(Icons.notifications, color: Colors.white),
@@ -65,7 +67,8 @@ class _HomeScreenState extends State<NoteHomePage> {
         body: Stack(children: [
           Column(children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(
+                top: 10.0, right: 10, left: 10, bottom: 5),
               child: TextFormField(
                 controller: search,
                 decoration: InputDecoration(
@@ -104,7 +107,7 @@ class _HomeScreenState extends State<NoteHomePage> {
                                 );
                               });
                         } else {
-                          return Center(child: Text("No Documents Yet"));
+                          return Center(child: Text("No documents yet."));
                         }
                       })),
             ),

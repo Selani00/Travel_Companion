@@ -289,13 +289,13 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
   }
 
   Widget buildImages(String imageURL, int index) => Container(
-        color: Colors.grey,
         width: double.infinity,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(imageURL),
-          fit: BoxFit.cover,
+        decoration: BoxDecoration(
+          color: Colors.grey,
+          image: DecorationImage(
+            image: NetworkImage(imageURL),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
       );
 }

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/bottom_navigation_bar.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
@@ -19,7 +18,6 @@ class HomeNavigator extends StatefulWidget {
 class _HomeNavigatorState extends State<HomeNavigator> {
   Menus currentIndex = Menus.home;
   AuthService authService = AuthService();
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Future<FireStoreUser?> user;
 
   //getcurrent user detils

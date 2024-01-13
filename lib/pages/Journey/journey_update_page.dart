@@ -3,7 +3,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/journey.dart';
-import 'package:travel_journal/models/note_images.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_update_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
@@ -18,7 +17,6 @@ class JourneyUpdatePage extends StatefulWidget {
 }
 
 class _JourneyPageState extends State<JourneyUpdatePage> {
-  NoteImages? noteImagepair;
   List<String> imagepaths = [];
   JourneyServices? journeyServices;
   List<Journey>? journey;

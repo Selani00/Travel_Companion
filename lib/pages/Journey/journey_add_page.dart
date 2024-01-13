@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travel_journal/components/app_colors.dart';
-import 'package:travel_journal/models/note_images.dart';
 import 'package:travel_journal/models/note_model.dart';
 
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
-import 'package:travel_journal/services/hive/hive_Services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
 
@@ -32,9 +30,10 @@ class _JourneyPageState extends State<JourneyAddPage> {
   var formKey = GlobalKey<FormState>();
   JourneyServices journeyServices = JourneyServices();
   NoteServices noteServices = NoteServices();
+
   late Note note;
 
-  HiveServices hiveServices = HiveServices();
+  
 
   @override
   void initState() {
@@ -298,22 +297,19 @@ class _JourneyPageState extends State<JourneyAddPage> {
         ),
       );
   //save image path in hive with the note id
-  Future<void>pickImages()async{
+  Future<void> pickImages() async {
     List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
     if (pickedFiles != null && pickedFiles.isNotEmpty) {
       setState(() {
         imagesList = pickedFiles.map((file) => file.path).toList();
       });
-      
     }
-    await saveImagesInHive(imagesList);
   }
 
   Future<void> saveImagesInHive(List<String> pickedIageList) async {
     if (pickedIageList.isNotEmpty) {
-      NoteImages noteImagePair = NoteImages(journeyCreated, imagesList);
-      await hiveServices.addItem(noteImagePair);
-      print(noteImagePair);
+      
+      
     }
   }
 }

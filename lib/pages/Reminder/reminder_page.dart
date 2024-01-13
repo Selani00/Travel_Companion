@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/reminder.dart';
 import 'package:travel_journal/services/Reminder/reminder_services.dart';
@@ -12,12 +14,79 @@ class RemindersPage extends StatefulWidget {
 
 class _RemindersPageState extends State<RemindersPage> {
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   late DateTime selectedDateTime;
+  late List<Reminder> reminders;  
+
+  //add reminders
+  Future<void> saveReminder(Reminder reminder) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> reminderStrings = reminders.map((reminder) {
+      return 'description:${reminder.description}|dateTime:${reminder.datetime}';
+    }).toList();
+
+    prefs.setStringList('reminders', reminderStrings);
+  }
+
+  //load reminders
+  Future<void> loadReminders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? reminderStrings = prefs.getStringList('reminders');
+
+    if (reminderStrings != null) {
+      setState(() {
+        reminders = reminderStrings.map((reminder) {
+          Map<String, dynamic> reminderMap = Map<String, dynamic>.from(
+            Map<String, dynamic>.fromIterable(
+              reminder.split('|'),
+              key: (item) => item.split(':')[0],
+              value: (item) => item.split(':')[1],
+            ),
+          );
+
+          return Reminder(
+            description: reminderMap['description']!,
+            datetime: DateTime.parse(reminderMap['dateTime']!),
+          );
+        }).toList();
+      });
+    }
+  }
+
+  void removeExpiredReminders() {
+    DateTime currentDateTime = DateTime.now();
+
+    setState(() {
+      reminders.removeWhere(
+          (reminder) => reminder.datetime.isBefore(currentDateTime));
+    });
+
+    saveRemindersList();
+  }
+
+  Future<void> saveRemindersList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> reminderStrings = reminders.map((reminder) {
+      return 'description:${reminder.description}|dateTime:${reminder.datetime.toIso8601String()}';
+    }).toList();
+
+    prefs.setStringList('reminders', reminderStrings);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Check and remove expired reminders every time the page loads
+    removeExpiredReminders();
+  }
 
   @override
   void initState() {
     super.initState();
     selectedDateTime = DateTime.now();
+    reminders = [];
+    loadReminders();
   }
 
   @override
@@ -72,52 +141,50 @@ class _RemindersPageState extends State<RemindersPage> {
             SizedBox(
               height: 20,
             ),
-            Row(
-              children: [
-                Text(
-                  "Date: ${selectedDateTime.day}/${selectedDateTime.month}/${selectedDateTime.year} Time:${selectedDateTime.hour}:${selectedDateTime.minute < 10 ? '0${selectedDateTime.minute}' : selectedDateTime}",
-                  style: TextStyle(color: Colors.black, fontSize: 18),
-                ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () async {
-                    // Show date and time picker
-                    DateTime? pickedDateTime = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDateTime,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-
-                    if (pickedDateTime != null) {
-                      TimeOfDay? pickedTime = await showTimePicker(
+            TextFormField(
+              controller: dateController,
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                errorStyle: TextStyle(color: Colors.white),
+                prefixIcon: GestureDetector(
+                    onTap: () async {
+                      // Show date and time picker
+                      DateTime? pickedDateTime = await showDatePicker(
                         context: context,
-                        initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+                        initialDate: selectedDateTime,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
                       );
 
-                      if (pickedTime != null) {
-                        pickedDateTime = DateTime(
-                          pickedDateTime.year,
-                          pickedDateTime.month,
-                          pickedDateTime.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
+                      if (pickedDateTime != null) {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(selectedDateTime),
                         );
 
-                        setState(() {
-                          selectedDateTime = pickedDateTime!;
-                          print(selectedDateTime);
-                        });
+                        if (pickedTime != null) {
+                          pickedDateTime = DateTime(
+                            pickedDateTime.year,
+                            pickedDateTime.month,
+                            pickedDateTime.day,
+                            pickedTime.hour,
+                            pickedTime.minute,
+                          );
+
+                          setState(() {
+                            selectedDateTime = pickedDateTime!;
+                            dateController.text = DateFormat('yyyy-MM-dd HH:mm')
+                                .format(pickedDateTime);
+                          });
+                        }
                       }
-                    }
-                  },
-                  child: Icon(
-                    Icons.calendar_month_rounded,
-                    color: AppColors.mainColor,
-                    size: 35,
-                  ),
+                    },
+                    child: Icon(Icons.calendar_month_rounded)),
+                hintText: "Data and Time",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+              ),
             ),
             SizedBox(
               height: 30,
@@ -127,13 +194,17 @@ class _RemindersPageState extends State<RemindersPage> {
                   fixedSize: Size(width, 50),
                   backgroundColor: AppColors.mainColor),
               onPressed: () async {
-                ReminderServices.scheduleNotification(
-                        reminder: Reminder(
-                            description: descriptionController.text.trim(),
-                            datetime: selectedDateTime))
+                Reminder newReminder = Reminder(
+                    description: descriptionController.text.trim(),
+                    datetime: selectedDateTime);
+                reminders.add(newReminder);
+                await saveReminder(newReminder);
+                await ReminderServices.scheduleNotification(
+                        reminder: newReminder)
                     .then((_) {
                   setState(() {
                     descriptionController.clear();
+                    dateController.clear();
                     print("Reminder Added Succefully");
                   });
                 });
@@ -167,46 +238,59 @@ class _RemindersPageState extends State<RemindersPage> {
             SizedBox(
               height: 20,
             ),
-            _reminders(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: reminders.length,
+                itemBuilder: (context, index) {
+                  Reminder reminder = reminders[index];
+                  return ListTile(
+                    title: Text(reminder.description),
+                    subtitle: Text(
+                      'Date and Time: ${reminder.datetime.toLocal()}',
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _reminders() {
-    return Container(
-      height: 60,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            "Reminder 1",
-            style: TextStyle(color: Colors.black, fontSize: 15),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            "Sechdule date and time",
-            style: TextStyle(color: Colors.black, fontSize: 15),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _reminders() {
+  //   return Container(
+  //     height: 60,
+  //     width: MediaQuery.of(context).size.width,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.all(Radius.circular(10)),
+  //       color: Colors.white,
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.grey.withOpacity(0.5),
+  //           spreadRadius: 2,
+  //           blurRadius: 10,
+  //           offset: Offset(0, 3),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         Text(
+  //           "Reminder 1",
+  //           style: TextStyle(color: Colors.black, fontSize: 15),
+  //         ),
+  //         SizedBox(
+  //           height: 5,
+  //         ),
+  //         Text(
+  //           "Sechdule date and time",
+  //           style: TextStyle(color: Colors.black, fontSize: 15),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 

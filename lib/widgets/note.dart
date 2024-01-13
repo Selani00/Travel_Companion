@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travel_journal/config/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
+import 'package:travel_journal/services/notes/note_services.dart';
 
 Widget noteCard(Function()? onTap, Note note) {
   print("Note Details: $note");
@@ -78,7 +79,7 @@ Widget noteCard(Function()? onTap, Note note) {
                     ),
                     GestureDetector(
                       onTap: () {
-                        
+                        NoteServices().deleteOneNote(note.noteId);
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(right: 10.0),

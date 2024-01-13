@@ -9,9 +9,7 @@ import 'package:travel_journal/pages/Autheticate/authentication.dart';
 import 'package:travel_journal/services/auth/auth.dart';
 
 class ProfilePage extends StatefulWidget {
-  final UserWithCredentials? userWithCredentials;
   ProfilePage({
-    this.userWithCredentials,
     super.key,
   });
 
@@ -23,19 +21,24 @@ class _AppSetUpPageState extends State<ProfilePage> {
   bool isEditingEnabled = false;
   TextEditingController username = TextEditingController();
   TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
   String _error = '';
   bool _obscureText = true;
   File? _image;
   String? _imagepath;
+  FireStoreUser? fireStoreUser;
 
   void loadData() async {
-    // Update TextEditingControllers if userWithCredentials data exists
-    if (widget.userWithCredentials != null) {
-      username.text = widget.userWithCredentials!.username!;
-      email.text = widget.userWithCredentials!.email!;
+    FireStoreUser? user = await _authService.getFireStoreUser();
+    setState(() {
+      fireStoreUser = user;
+    });
+    print(user);
+
+    if (fireStoreUser != null) {
+      username.text = fireStoreUser!.username!;
+      email.text = fireStoreUser!.email!;
     }
   }
 
@@ -122,7 +125,7 @@ class _AppSetUpPageState extends State<ProfilePage> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              pickImage();
+                              pickImage(_image?.path);
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -152,6 +155,7 @@ class _AppSetUpPageState extends State<ProfilePage> {
                   Container(
                     margin: EdgeInsets.only(left: 15, right: 15),
                     child: TextFormField(
+                      controller: username,
                       enabled: isEditingEnabled,
                       keyboardType: TextInputType.name,
                       decoration: InputDecoration(
@@ -173,9 +177,8 @@ class _AppSetUpPageState extends State<ProfilePage> {
                   Container(
                     margin: EdgeInsets.only(left: 15, right: 15),
                     child: TextFormField(
-                      // validator: (value) => value?.isEmpty == true
-                      //     ? 'Enter your User Name'
-                      //     : null,
+                      controller: email,
+                      enabled: isEditingEnabled,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         errorStyle: TextStyle(color: Colors.white),
@@ -193,46 +196,12 @@ class _AppSetUpPageState extends State<ProfilePage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Container(
-                    margin: EdgeInsets.only(left: 15, right: 15),
-                    child: TextFormField(
-                      // validator: (value) => value?.isEmpty == true
-                      //     ? 'Enter your User Name'
-                      //     : null,
-                      keyboardType: TextInputType.emailAddress,
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        errorStyle: TextStyle(color: Colors.white),
-                        hintText: "Password",
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: AppColors.mainColor,
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppColors.mainColor,
-                          ),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ),
                   SizedBox(
                     height: 40,
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        fixedSize: Size(width * 0.8, 60),
+                        fixedSize: Size(width * 0.5, 60),
                         backgroundColor: AppColors.mainColor),
                     onPressed: () async {
                       SaveImage(_image?.path);
@@ -256,10 +225,11 @@ class _AppSetUpPageState extends State<ProfilePage> {
     );
   }
 
-  Future<void> pickImage() async {
+  Future<void> pickImage(path) async {
     final imagePicker = ImagePicker();
     final pickedImage =
         await imagePicker.pickImage(source: ImageSource.gallery);
+    await SaveImage(path);
 
     if (pickedImage != null) {
       setState(() {

@@ -59,8 +59,8 @@ class AuthService {
       final UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       final User? user = result.user;
-      UserWithCredentials userWithCredentials =
-          UserWithCredentials(uid: user!.uid, email: email, username: username);
+      FireStoreUser userWithCredentials =
+          FireStoreUser(uid: user!.uid, email: email, username: username);
       bool userCreatedInFirestore =
           await createUserInUsersCollection(userWithCredentials);
       //await SharedPreferenceService().saveUserEmail(email);
@@ -77,13 +77,12 @@ class AuthService {
   }
 
   //CREATE NEW  user
-  Future<bool> createUserInUsersCollection(
-      UserWithCredentials userWithCredentials) async {
+  Future<bool> createUserInUsersCollection(FireStoreUser fireStoreUser) async {
     try {
       await _firestore.collection('Users').doc(_auth.currentUser!.uid).set({
-        'email': userWithCredentials.email,
+        'email': fireStoreUser.email,
         'id': _auth.currentUser!.uid,
-        'username': userWithCredentials.username,
+        'username': fireStoreUser.username,
       });
       return true;
     } catch (e) {
@@ -93,6 +92,32 @@ class AuthService {
   }
 
   //UserWithCredentials return
+  Future<FireStoreUser?> getFireStoreUser() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('Users')
+          .doc(_auth.currentUser!.uid)
+          .get();
+
+      if (querySnapshot.exists) {
+        FireStoreUser user = FireStoreUser(
+            email: querySnapshot['email'],
+            username: querySnapshot['username'],
+            uid: querySnapshot['id']
+
+            // Add other fields according to your Note model
+            );
+        return user;
+      } else {
+        // Document with the provided ID does not exist
+        throw Exception('User does not exist');
+      }
+    } catch (e) {
+      // Handle any potential errors
+      print(e);
+      throw Exception('Error fetching note');
+    }
+  }
 
   //gmail signup
   Future<bool> signInWithGoogle() async {
@@ -111,7 +136,7 @@ class AuthService {
     User? userDetils = result.user;
 
     bool gmailuserCreatedInFirestore = await createUserInUsersCollection(
-        UserWithCredentials(
+        FireStoreUser(
             uid: userDetils!.uid,
             email: userDetils.email,
             username: userDetils.displayName));

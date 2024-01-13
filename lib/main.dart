@@ -36,10 +36,12 @@ Future<void> main() async {
   if (!isAllowedToSendNotification) {
     await AwesomeNotifications().requestPermissionToSendNotifications();
   }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  
   runApp(const MyApp());
 }
 
@@ -73,7 +75,7 @@ class _MyAppState extends State<MyApp> {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.start,
-          routes: AppRoutes.pages,));
+          routes: AppRoutes.pages,
+        ));
   }
 }
-

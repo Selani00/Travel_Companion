@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
 
@@ -30,12 +29,14 @@ class _JourneyPageState extends State<JourneyAddPage> {
   var formKey = GlobalKey<FormState>();
   JourneyServices journeyServices = JourneyServices();
   NoteServices noteServices = NoteServices();
+
   late Note note;
+
+  
 
   @override
   void initState() {
     super.initState();
-    loadImagesFromPrefs();
   }
 
   @override
@@ -100,7 +101,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
               ),
               FloatingActionButton(
                 onPressed: () async {
-                  await pickImages();
+                  pickImages();
                 },
                 child: Icon(Icons.add),
               ),
@@ -213,6 +214,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                                 if (journeyCreated.isNotEmpty) {
                                   setState(() {
                                     addingFinish = false;
+                                    imagesList = [];
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -286,34 +288,6 @@ class _JourneyPageState extends State<JourneyAddPage> {
         ));
   }
 
-  Future<void> pickImages() async {
-    List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
-
-    if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      setState(() {
-        imagesList = pickedFiles.map((file) => file.path).toList();
-      });
-
-      saveImagesToPrefs();
-    }
-  }
-
-  void saveImagesToPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('imagesList', imagesList);
-  }
-
-  void loadImagesFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? storedImages = prefs.getStringList('imagesList');
-
-    if (storedImages != null) {
-      setState(() {
-        imagesList = storedImages;
-      });
-    }
-  }
-
   Widget buildImages(String imagePath, int index) => Container(
         color: Colors.grey,
         child: Image.file(
@@ -321,4 +295,20 @@ class _JourneyPageState extends State<JourneyAddPage> {
           fit: BoxFit.cover,
         ),
       );
+  //save image path in hive with the note id
+  Future<void> pickImages() async {
+    List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
+    if (pickedFiles != null && pickedFiles.isNotEmpty) {
+      setState(() {
+        imagesList = pickedFiles.map((file) => file.path).toList();
+      });
+    }
+  }
+
+  Future<void> saveImagesInHive(List<String> pickedIageList) async {
+    if (pickedIageList.isNotEmpty) {
+      
+      
+    }
+  }
 }

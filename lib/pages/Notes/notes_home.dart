@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:travel_journal/config/app_routes.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/config/app_colors.dart';
@@ -24,95 +25,92 @@ class _HomeScreenState extends State<NoteHomePage> {
   @override
   void initState() {
     super.initState();
-    notesFuture = _loadNotes();
-  }
-
-  Future<List<Note>> _loadNotes() async {
-    List<Note> notes = await noteServices.getAllNotes();
-    return notes;
   }
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: AppColors.mainColor,
-        elevation: 0.0,
-        title: Row(children: [
-          Spacer(),
-          Text("Your Plans and Journeys",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold)),
-          const Spacer(),
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).pushNamed(AppRoutes.reminderspage);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20), color: Colors.black),
-              height: height * 0.05,
-              width: height * 0.05,
-              child: Icon(Icons.notifications, color: Colors.white),
+    return ChangeNotifierProvider(
+      create: (_) => ChangeNotifier(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: AppColors.mainColor,
+          elevation: 0.0,
+          title: Row(children: [
+            Spacer(),
+            Text("Your Plans and Journeys",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
+            const Spacer(),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushNamed(AppRoutes.reminderspage);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black),
+                height: height * 0.05,
+                width: height * 0.05,
+                child: Icon(Icons.notifications, color: Colors.white),
+              ),
+            )
+          ]),
+        ),
+        body: Stack(children: [
+          Column(children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: search,
+                decoration: InputDecoration(
+                    hintText: "Search",
+                    hintStyle: TextStyle(color: Colors.white),
+                    prefixIcon: Icon(Icons.search, color: Colors.white),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none),
+                    contentPadding: EdgeInsets.zero,
+                    filled: true,
+                    fillColor: Colors.black.withOpacity(0.2)),
+              ),
             ),
-          )
+            SizedBox(height: height * 0.02),
+            Expanded(
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StreamBuilder<List<Note>>(
+                      stream: _noteServices.getNotesStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  padding: EdgeInsets.all(8),
+                                  child: noteCard(
+                                      () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  JourneyUpdatePage(
+                                                      note: snapshot
+                                                          .data![index]))),
+                                      snapshot.data![index]),
+                                );
+                              });
+                        } else {
+                          return Center(child: Text("No Documents Yet"));
+                        }
+                      })),
+            ),
+          ]),
         ]),
       ),
-      body: Stack(children: [
-        Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: search,
-              decoration: InputDecoration(
-                  hintText: "Search",
-                  hintStyle: TextStyle(color: Colors.white),
-                  prefixIcon: Icon(Icons.search, color: Colors.white),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none),
-                  contentPadding: EdgeInsets.zero,
-                  filled: true,
-                  fillColor: Colors.black.withOpacity(0.2)),
-            ),
-          ),
-          SizedBox(height: height * 0.02),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: FutureBuilder<List<Note>>(
-                  future: notesFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              padding: EdgeInsets.all(8),
-                              child: noteCard(
-                                  () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              JourneyUpdatePage(
-                                                  note:
-                                                      snapshot.data![index]))),
-                                  snapshot.data![index]),
-                            );
-                          });
-                    } else {
-                      return Center(child: Text("No Documents Yet"));
-                    }
-                  }),
-            ),
-          ),
-        ]),
-      ]),
     );
   }
 }

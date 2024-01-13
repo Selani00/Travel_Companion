@@ -1,4 +1,4 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/firebase_user_model.dart';
@@ -17,18 +17,7 @@ class HomeNavigator extends StatefulWidget {
 }
 
 class _HomeNavigatorState extends State<HomeNavigator> {
-  int index = 0;
-  final pages = [
-    NoteHomePage(),
-    WeatherPage(),
-    JourneyAddPage(),
-    MapPage(),
-    ProfilePage(),
-  ];
 
-  // Menus currentIndex = Menus.home;
-  // AuthService authService = AuthService();
-  late Future<UserWithCredentials?> user;
 
   //getcurrent user detils
 

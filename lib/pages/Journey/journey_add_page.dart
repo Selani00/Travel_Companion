@@ -7,6 +7,7 @@ import 'package:travel_journal/models/note_model.dart';
 
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
+import 'package:travel_journal/services/images/image_services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
 
@@ -20,7 +21,9 @@ class JourneyAddPage extends StatefulWidget {
 }
 
 class _JourneyPageState extends State<JourneyAddPage> {
+  List<XFile>? pickedFiles;
   List<String> imagesList = [];
+  List<String> downloadURLs = [];
   TextEditingController titlecontroller = TextEditingController();
   TextEditingController descriptioncontroller = TextEditingController();
   TextEditingController locationcontroller = TextEditingController();
@@ -31,8 +34,6 @@ class _JourneyPageState extends State<JourneyAddPage> {
   NoteServices noteServices = NoteServices();
 
   late Note note;
-
-  
 
   @override
   void initState() {
@@ -102,6 +103,20 @@ class _JourneyPageState extends State<JourneyAddPage> {
               FloatingActionButton(
                 onPressed: () async {
                   pickImages();
+                  if (pickedFiles != null && pickedFiles!.isNotEmpty) {
+                    // Wait for the completion of uploadImages
+                    downloadURLs = await ImageServices()
+                        .uploadImages(pickedFiles!, note.noteId);
+
+                    // Now you have the downloadURLs, and you can proceed with other logic
+                    // ...
+                    setState(() {
+                      imagesList =
+                          pickedFiles!.map((file) => file.path).toList();
+                    });
+                  } else {
+                    print('No images selected');
+                  }
                 },
                 child: Icon(Icons.add),
               ),
@@ -208,7 +223,8 @@ class _JourneyPageState extends State<JourneyAddPage> {
                                     .createJourneyInJourneyCollection(
                                         titlecontroller.text,
                                         descriptioncontroller.text,
-                                        locationcontroller.text);
+                                        locationcontroller.text,
+                                        downloadURLs);
                                 note = await noteServices
                                     .getOneNote(journeyCreated);
                                 if (journeyCreated.isNotEmpty) {
@@ -296,19 +312,13 @@ class _JourneyPageState extends State<JourneyAddPage> {
         ),
       );
   //save image path in hive with the note id
-  Future<void> pickImages() async {
-    List<XFile>? pickedFiles = await ImagePicker().pickMultiImage();
-    if (pickedFiles != null && pickedFiles.isNotEmpty) {
-      setState(() {
-        imagesList = pickedFiles.map((file) => file.path).toList();
-      });
-    }
-  }
-
-  Future<void> saveImagesInHive(List<String> pickedIageList) async {
-    if (pickedIageList.isNotEmpty) {
-      
-      
-    }
+  Future<List<File>?> pickImages() async {
+    pickedFiles = await ImagePicker().pickMultiImage(
+      imageQuality: 50, // Adjust the image quality as needed
+    );
+    setState(() {
+      imagesList = pickedFiles!.map((file) => file.path).toList();
+    });
+    return pickedFiles?.map((file) => File(file.path)).toList();
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
@@ -39,6 +38,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
       titlecontroller.text = journey![0].title ?? '';
       descriptioncontroller.text = journey![0].journeyDescription ?? '';
       locationcontroller.text = journey![0].journeyLocations ?? '';
+      imagepaths = journey![0].imageURLs ?? [];
     }
     print(journey);
   }
@@ -105,7 +105,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
                   ),
                   itemCount: imagepaths.length,
                   itemBuilder: (context, index, realIndex) {
-                    final assetsImage = imagepaths[index];
+                    final imageURL = imagepaths[index];
 
                     return buildImages(imagepaths[index], index);
                   },
@@ -288,11 +288,14 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
     );
   }
 
-  Widget buildImages(String imagePath, int index) => Container(
+  Widget buildImages(String imageURL, int index) => Container(
         color: Colors.grey,
-        child: Image.file(
-          File(imagePath),
+        width: double.infinity,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage(imageURL),
           fit: BoxFit.cover,
         ),
+      ),
       );
 }

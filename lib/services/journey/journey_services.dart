@@ -19,7 +19,7 @@ class JourneyServices {
 
   //creation
   Future<String> createJourneyInJourneyCollection(
-      String title, String journeyDescription, String journeyLocations) async {
+      String title, String journeyDescription, String journeyLocations, List<String> imageURLs ) async {
     try {
       String noteId = await noteServices.createNoteInNotesCollection();
       await _firestore
@@ -35,6 +35,7 @@ class JourneyServices {
         'journeyLocations': journeyLocations,
         'date': Timestamp.now(),
         'colorId': colorId.toString(),
+        'imageURLs': imageURLs,
       });
       await _firestore
           .collection('Users')
@@ -72,6 +73,8 @@ class JourneyServices {
                 journeyDescription: doc['journeyDescription'],
                 journeyLocations: doc['journeyLocations'],
                 title: doc['title'],
+                imageURLs: List<String>.from(doc['imageURLs']),
+                
               ))
           .toList();
       print(journey);

@@ -1,4 +1,4 @@
-import 'package:travel_journal/pages/Profile/profile_page.dart';
+
 import 'package:travel_journal/pages/Reminder/reminder_page.dart';
 import 'package:travel_journal/pages/Start/app_start_page.dart';
 import 'package:travel_journal/pages/Autheticate/login_page.dart';

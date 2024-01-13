@@ -60,18 +60,6 @@ class _AppSetUpPageState extends State<ProfilePage> {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () {
-              setState(() {
-                isEditingEnabled = true;
-              });
-            },
-            icon: const Icon(
-              Icons.edit,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-          IconButton(
               onPressed: () async {
                 await _authService.signOut();
                 const Authenticate();
@@ -104,14 +92,14 @@ class _AppSetUpPageState extends State<ProfilePage> {
                       _imagepath != null && _imagepath!.isNotEmpty
                           ? CircleAvatar(
                               backgroundImage: FileImage(File(_imagepath!)),
-                              radius: 80,
+                              radius: 100,
                             )
                           : CircleAvatar(
                               backgroundImage: _image != null
                                   ? FileImage(_image!)
-                                  : AssetImage(AppImages.startImg)
+                                  : AssetImage(AppImages.profilepic)
                                       as ImageProvider<Object>?,
-                              radius: 80,
+                              radius: 100,
                             ),
                       Positioned(
                         bottom: 1,
@@ -194,14 +182,48 @@ class _AppSetUpPageState extends State<ProfilePage> {
                     ),
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 80,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15, right: 15),
+                    child: TextFormField(
+                      // validator: (value) => value?.isEmpty == true
+                      //     ? 'Enter your User Name'
+                      //     : null,
+                      keyboardType: TextInputType.emailAddress,
+                      obscureText: _obscureText,
+                      decoration: InputDecoration(
+                        errorStyle: TextStyle(color: Colors.white),
+                        hintText: "Password",
+                        prefixIcon: Icon(
+                          Icons.lock,
+                          color: AppColors.mainColor,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.mainColor,
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(
                     height: 40,
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        fixedSize: Size(width * 0.5, 60),
+                        fixedSize: Size(width * 0.8, 60),
                         backgroundColor: AppColors.mainColor),
                     onPressed: () async {
                       SaveImage(_image?.path);
@@ -237,6 +259,8 @@ class _AppSetUpPageState extends State<ProfilePage> {
         _imagepath = pickedImage.path;
       });
     }
+
+    await SaveImage(_imagepath);
   }
 
   Future<void> SaveImage(path) async {

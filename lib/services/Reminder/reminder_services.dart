@@ -85,5 +85,47 @@ class ReminderServices {
     }
   }
 
-  
+  Stream<List<Reminder>> getReminderStream() {
+    try {
+      return _firestore
+          .collection('Users')
+          .doc(_auth.currentUser!.uid)
+          .collection('Reminders')
+          .orderBy('datetime', descending: true)
+          .snapshots()
+          .map((QuerySnapshot querySnapshot) {
+        List<Reminder> reminders = querySnapshot.docs
+            .map((doc) => Reminder(
+                  description: doc['description'],
+                  datetime: doc['datetime'].toDate(),
+                ))
+            .toList();
+        print(reminders);
+        return reminders;
+      });
+    } catch (e) {
+      print(e);
+      throw Exception('Error fetching reminders');
+    }
+  }
+
+  Future<void> autoDeleteReminder() async {
+    DateTime currentDate = DateTime.now();
+
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('Users')
+          .doc(_auth.currentUser!.uid)
+          .collection('Reminders')
+          .where('datetime', isLessThan: currentDate)
+          .get();
+
+      for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        await documentSnapshot.reference.delete();
+      }
+    } catch (e) {
+      print(e);
+      throw Exception('Error deleting reminders');
+    }
+  }  
 }

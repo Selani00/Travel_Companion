@@ -296,10 +296,10 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.grey,
-          image: DecorationImage(
-            image: NetworkImage(imageURL),
-            fit: BoxFit.cover,
-          ),
+        ),
+        child: Image.network(
+          imageURL,
+          fit: BoxFit.cover,
         ),
       );
 }

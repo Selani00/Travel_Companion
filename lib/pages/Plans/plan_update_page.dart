@@ -79,9 +79,11 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
           IconButton(
               icon: IconTheme(
                   data: IconThemeData(color: Colors.white, size: 25),
-                  child: Icon(Icons.menu)),
+                  child: Icon(Icons.edit)),
               onPressed: () {
-                // Navigator.of(context).pushNamed(AppRoutes.profilepage);
+                setState(() {
+                  isEdditingEnabled = true;
+                });
               })
         ],
         backgroundColor: AppColors.mainColor,
@@ -105,8 +107,8 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
                         height: 10,
                       ),
                       Text(
-                        "Data and time",
-                        style: TextStyle(color: Colors.black, fontSize: 16),
+                        "Created Date:${plan?[0].date.day}/${plan?[0].date.month}/${plan?[0].date.year}   Created Time:${plan?[0].date.hour}:${plan?[0].date.minute}",
+                        style: TextStyle(color: Colors.black, fontSize: 13),
                       ),
                       Container(
                         height: 1, // Height of the line
@@ -190,79 +192,82 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
                       SizedBox(
                         height: 80,
                       ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      ElevatedButton(
-                          onPressed: () async {
-                            if (isEdditingEnabled) {
-                              isDone = await planServices
-                                  ?.addOrupdatePlanInPlansCollection(
-                                      title: titlecontroller.text,
-                                      description: descriptioncontroller.text,
-                                      locations: locationcontroller.text);
-                            }
-                            if (isDone == 1 || isDone == 2) {
-                              setState(() {
-                                isEdditingEnabled = false;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Action Completed"),
-                                  duration: Duration(
-                                      seconds:
-                                          2), // Adjust the duration as needed
+                      Row(
+                        children: [
+                          Container(
+                            height: height * 0.05,
+                            width: width * 0.55,
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => JourneyUpdatePage(
+                                              note: widget.note,
+                                            )),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: AppColors.mainColor,
                                 ),
-                              );
-                            }
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => JourneyUpdatePage(
-                                        note: widget.note,
-                                      )),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: AppColors.mainColor,
+                                child: Row(
+                                  children: [
+                                    Spacer(),
+                                    IconTheme(
+                                        data: IconThemeData(
+                                            color: Colors.white, size: 30),
+                                        child: Icon(
+                                          Icons.arrow_back,
+                                        )),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      "Go to Journey",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                    Spacer(),
+                                  ],
+                                )),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Row(
-                              children: [
-                                Spacer(),
-                                IconTheme(
-                                    data: IconThemeData(
-                                        color: Colors.white, size: 30),
-                                    child: Icon(
-                                      Icons.arrow_back,
-                                    )),
-                                SizedBox(
-                                  width: 20,
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                            height: height * 0.05,
+                            width: width * 0.3,
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  await planServices
+                                      ?.addOrupdatePlanInPlansCollection(
+                                          title: titlecontroller.text,
+                                          description:
+                                              descriptioncontroller.text,
+                                          locations: locationcontroller.text);
+
+                                  setState(() {
+                                    isEdditingEnabled = false;
+                                  });
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Plan Update successfully"),
+                                      duration: Duration(seconds: 2),
+                                      backgroundColor: Colors
+                                          .green, 
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: AppColors.mainColor,
                                 ),
-                                Text(
-                                  "Plan your journey",
+                                child: Text(
+                                  "Save",
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 20),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                          )),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              isEdditingEnabled = true; // Enable text fields
-                            });
-                          },
-                          child: Text('Enable Editing'),
-                        ),
+                                )),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -276,3 +281,64 @@ class _PlanAddPageState extends State<PlanUpdatePage> {
     );
   }
 }
+
+
+
+// ElevatedButton(
+//                           onPressed: () async {
+//                             if (isEdditingEnabled) {
+//                               isDone = await planServices
+//                                   ?.addOrupdatePlanInPlansCollection(
+//                                       title: titlecontroller.text,
+//                                       description: descriptioncontroller.text,
+//                                       locations: locationcontroller.text);
+//                             }
+//                             if (isDone == 1 || isDone == 2) {
+//                               setState(() {
+//                                 isEdditingEnabled = false;
+//                               });
+//                               ScaffoldMessenger.of(context).showSnackBar(
+//                                 SnackBar(
+//                                   content: Text("Action Completed"),
+//                                   duration: Duration(
+//                                       seconds:
+//                                           2), // Adjust the duration as needed
+//                                 ),
+//                               );
+//                             }
+//                             await Navigator.of(context).push(
+//                               MaterialPageRoute(
+//                                   builder: (context) => JourneyUpdatePage(
+//                                         note: widget.note,
+//                                       )),
+//                             );
+//                           },
+//                           style: ElevatedButton.styleFrom(
+//                             primary: AppColors.mainColor,
+//                           ),
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(10.0),
+//                             child: Row(
+//                               children: [
+//                                 Spacer(),
+//                                 IconTheme(
+//                                     data: IconThemeData(
+//                                         color: Colors.white, size: 30),
+//                                     child: Icon(
+//                                       Icons.arrow_back,
+//                                     )),
+//                                 SizedBox(
+//                                   width: 20,
+//                                 ),
+//                                 Text(
+//                                   "Go to journey",
+//                                   style: TextStyle(
+//                                       color: Colors.white, fontSize: 20),
+//                                 ),
+//                                 SizedBox(
+//                                   width: 20,
+//                                 ),
+//                                 Spacer(),
+//                               ],
+//                             ),
+//                           )),

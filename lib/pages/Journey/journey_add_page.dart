@@ -59,18 +59,11 @@ class _JourneyPageState extends State<JourneyAddPage> {
                 },
                 child: Icon(Icons.arrow_back)),
           ),
-          title: Text("Journey Plan",
+          title: Text("Collect Your Memories",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 25,
                   fontWeight: FontWeight.normal)),
-          actions: [
-            IconButton(
-                icon: IconTheme(
-                    data: IconThemeData(color: Colors.white, size: 25),
-                    child: Icon(Icons.menu)),
-                onPressed: () {})
-          ],
           backgroundColor: AppColors.mainColor,
         ),
         body: Container(

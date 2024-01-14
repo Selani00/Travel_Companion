@@ -1,11 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_journal/components/app_colors.dart';
-import 'package:travel_journal/config/app_images.dart';
 import 'package:travel_journal/models/journey.dart';
 import 'package:travel_journal/models/note_model.dart';
 import 'package:travel_journal/pages/Plans/plan_update_page.dart';
-import 'package:travel_journal/pages/home_navigator.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 
 class JourneyUpdatePage extends StatefulWidget {
@@ -122,7 +120,7 @@ class _JourneyPageState extends State<JourneyUpdatePage> {
                         height: 10,
                       ),
                       Text(
-                        "Created Date:${journey?[0].date.day}/${journey?[0].date.month}/${journey?[0].date.year}   Created Time:${journey?[0].date.hour}:${journey?[0].date.minute}",
+                        "Date:${journey?[0].date.day}/${journey?[0].date.month}/${journey?[0].date.year}  Time:${journey?[0].date.hour}:${journey?[0].date.minute}",
                         style: TextStyle(color: Colors.black, fontSize: 13),
                       ),
                       Container(

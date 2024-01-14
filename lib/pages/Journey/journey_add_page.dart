@@ -1,16 +1,12 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
-
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
-import 'package:travel_journal/services/images/image_services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
 
@@ -261,12 +257,25 @@ class _JourneyPageState extends State<JourneyAddPage> {
                           width: width * 0.6,
                           child: ElevatedButton(
                               onPressed: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (context) => PlanAddPage(
-                                            note: note,
-                                          )),
-                                );
+                                if (note.noteId.isNotEmpty) {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => PlanAddPage(
+                                              note: note,
+                                            )),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("Please add the journey first"),
+                                      duration: Duration(
+                                          seconds:
+                                              3), // Adjust the duration as needed
+                                    ),
+                                  );
+                                }
+
                                 print(note);
                               },
                               style: ElevatedButton.styleFrom(
@@ -396,39 +405,4 @@ class _JourneyPageState extends State<JourneyAddPage> {
       return false;
     }
   }
-
-  // Future<bool> uploadImages(String noteId) async {
-  //   final path = '$noteId/${pickedFile!.name}';
-
-  //   try {
-  //     // for (var xFile in xFiles) {
-  //     //   File file = File(xFile.path);
-  //     //   var timeStamp = DateTime.now().millisecondsSinceEpoch;
-  //     //   var imageName = '$noteId$timeStamp.jpg';
-
-  //     //   TaskSnapshot snapshot = await _storage
-  //     //       .ref('note_images/$noteId/$imageName')
-  //     //       .putFile(file);
-
-  //     //   String imageUrl = await snapshot.ref.getDownloadURL();
-  //     //   downloadURLs.add(imageUrl);
-  //     final file = File(pickedFile!.path!);
-  //     final ref = FirebaseStorage.instance.ref(path);
-  //     setState(() {
-  //       uploadTask = ref.putFile(file);
-  //     });
-  //     await uploadTask!.whenComplete(() {});
-  //     final urlDownload = await ref.getDownloadURL();
-
-  //     setState(() {
-  //       downloadURLs.add(urlDownload);
-  //       uploadTask = null;
-  //     });
-  //     print('Downlo uRL :$downloadURLs');
-  //     return true;
-  //   } catch (e) {
-  //     print('Error uploading images: $e');
-  //     return false;
-  //   }
-  // }
 }

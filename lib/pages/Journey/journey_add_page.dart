@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:travel_journal/components/app_colors.dart';
 import 'package:travel_journal/models/note_model.dart';
-
 import 'package:travel_journal/pages/Plans/plan_add_page.dart';
 import 'package:travel_journal/pages/home_navigator.dart';
-import 'package:travel_journal/services/images/image_services.dart';
 import 'package:travel_journal/services/journey/journey_services.dart';
 import 'package:travel_journal/services/notes/note_services.dart';
 
@@ -21,7 +20,9 @@ class JourneyAddPage extends StatefulWidget {
 }
 
 class _JourneyPageState extends State<JourneyAddPage> {
-  List<XFile>? pickedFiles;
+  late List<PlatformFile> pickedFiles;
+  PlatformFile? pickedFile;
+  UploadTask? uploadTask;
   List<String> imagesList = [];
   List<String> downloadURLs = [];
   TextEditingController titlecontroller = TextEditingController();
@@ -67,12 +68,10 @@ class _JourneyPageState extends State<JourneyAddPage> {
                   fontWeight: FontWeight.normal)),
           backgroundColor: AppColors.mainColor,
         ),
-        body: Container(
-          width: width,
-          height: height,
+        body: SingleChildScrollView(
           child: Form(
             key: formKey,
-            child: ListView(children: [
+            child: Column(children: [
               Container(
                 height: height * 0.3,
                 width: width,
@@ -98,15 +97,10 @@ class _JourneyPageState extends State<JourneyAddPage> {
                   pickImages();
                   if (pickedFiles != null && pickedFiles!.isNotEmpty) {
                     // Wait for the completion of uploadImages
-                    downloadURLs = await ImageServices()
-                        .uploadImages(pickedFiles!, note.noteId);
 
                     // Now you have the downloadURLs, and you can proceed with other logic
                     // ...
-                    setState(() {
-                      imagesList =
-                          pickedFiles!.map((file) => file.path).toList();
-                    });
+                    setState(() {});
                   } else {
                     print('No images selected');
                   }
@@ -117,7 +111,6 @@ class _JourneyPageState extends State<JourneyAddPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         height: 10,
@@ -206,6 +199,7 @@ class _JourneyPageState extends State<JourneyAddPage> {
                       SizedBox(
                         height: 10,
                       ),
+                      buildProgress(),
                       Center(
                         child: Container(
                           height: height * 0.05,
@@ -220,7 +214,15 @@ class _JourneyPageState extends State<JourneyAddPage> {
                                         downloadURLs);
                                 note = await noteServices
                                     .getOneNote(journeyCreated);
-                                if (journeyCreated.isNotEmpty) {
+                                bool uploadDone =
+                                    await uploadImages(note.noteId);
+
+                                if (journeyCreated.isNotEmpty &&
+                                    uploadDone == true &&
+                                    downloadURLs.isNotEmpty) {
+                                  print("inside if elsse");
+                                  await journeyServices.updateJourneyImageURLs(
+                                      downloadURLs, journeyCreated);
                                   setState(() {
                                     addingFinish = false;
                                     imagesList = [];
@@ -255,12 +257,25 @@ class _JourneyPageState extends State<JourneyAddPage> {
                           width: width * 0.6,
                           child: ElevatedButton(
                               onPressed: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                      builder: (context) => PlanAddPage(
-                                            note: note,
-                                          )),
-                                );
+                                if (note.noteId.isNotEmpty) {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => PlanAddPage(
+                                              note: note,
+                                            )),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("Please add the journey first"),
+                                      duration: Duration(
+                                          seconds:
+                                              3), // Adjust the duration as needed
+                                    ),
+                                  );
+                                }
+
                                 print(note);
                               },
                               style: ElevatedButton.styleFrom(
@@ -304,14 +319,90 @@ class _JourneyPageState extends State<JourneyAddPage> {
           fit: BoxFit.cover,
         ),
       );
-  //save image path in hive with the note id
-  Future<List<File>?> pickImages() async {
-    pickedFiles = await ImagePicker().pickMultiImage(
-      imageQuality: 50, // Adjust the image quality as needed
-    );
-    setState(() {
-      imagesList = pickedFiles!.map((file) => file.path).toList();
-    });
-    return pickedFiles?.map((file) => File(file.path)).toList();
+
+  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
+      stream: uploadTask?.snapshotEvents,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final data = snapshot.data;
+          double progress = data!.bytesTransferred / data.totalBytes;
+          return SizedBox(
+            height: 50,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey,
+                  color: Colors.green,
+                ),
+                Center(
+                  child: Text(
+                    '${(progress * 100).toStringAsFixed(2)} % ',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          );
+        } else {
+          return SizedBox(
+            child: Text("No data"),
+          );
+        }
+      });
+
+  Future pickImages() async {
+    List<File> files = [];
+    try {
+      final result = await FilePicker.platform
+          .pickFiles(allowMultiple: true, type: FileType.image);
+      if (result != null) {
+        setState(() {
+          pickedFiles = result.files;
+          files = pickedFiles.map((file) => File(file.path!)).toList();
+          imagesList = files.map((file) => file.path).toList();
+        });
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error picking images: $e");
+      return null;
+    }
+  }
+
+  Future<bool> uploadImages(String noteId) async {
+    try {
+      for (var pickedFile in pickedFiles!) {
+        final path = '$noteId/${pickedFile.name}';
+
+        final file = File(pickedFile.path!);
+        final ref = FirebaseStorage.instance.ref(path);
+        final uploadTask = ref.putFile(file);
+
+        setState(() {
+          this.uploadTask = uploadTask;
+        });
+
+        await uploadTask.whenComplete(() {});
+
+        final urlDownload = await ref.getDownloadURL();
+
+        setState(() {
+          downloadURLs.add(urlDownload);
+          this.uploadTask = null; // Reset uploadTask when upload is completed
+        });
+      }
+
+      print('Download URLs: $downloadURLs');
+      return true;
+    } catch (e) {
+      setState(() {
+        this.uploadTask = null; // Reset uploadTask on error
+      });
+      print('Error uploading images: $e');
+      return false;
+    }
   }
 }

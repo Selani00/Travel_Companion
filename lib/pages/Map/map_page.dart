@@ -37,12 +37,12 @@ class _MapPageState extends State<MapPage> {
   final List<Marker> anymarker = [];
   final List<Marker> mymarkerList = [
     const Marker(
-        markerId: MarkerId('First'),
+        markerId: MarkerId('Sri Lanka'),
         position: LatLng(7.8774222, 80.7003428),
         infoWindow: InfoWindow(title: 'First Marker')),
-    const Marker(
-        markerId: MarkerId('Second'), position: LatLng(7.8774222, 80.713428)),
   ];
+  List<Location>? selectedLocations;
+  List<String>? locationInfo;
 
   //suggestion
   void makeSuggestion(String input) async {
@@ -135,6 +135,12 @@ class _MapPageState extends State<MapPage> {
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
+  //Add location to the user locations list
+  List<String>? addLocationToList() {
+    return locationInfo;
+    print(locationInfo);
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -177,17 +183,22 @@ class _MapPageState extends State<MapPage> {
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () async {
-                        List<Location> locations = await locationFromAddress(
+                        selectedLocations = await locationFromAddress(
                             listOfPlaces[index]['description']);
 
-                        await locateAnyLocation(locations.last.latitude,
-                            locations.last.longitude, locations.toString());
+                        await locateAnyLocation(
+                            selectedLocations!.last.latitude,
+                            selectedLocations!.last.longitude,
+                            selectedLocations.toString());
 
-                        print(locations.last.longitude);
-                        print(locations.last.latitude);
+                        print(selectedLocations!.last.longitude);
+                        print(selectedLocations!.last.latitude);
                         setState(() {
                           search = TextEditingController(
                               text: listOfPlaces[index]['description']);
+                          locationInfo = listOfPlaces[index]['description'];
+                          listOfPlaces = [];
+                          selectedLocations = [];
                         });
                       },
                       title: Text(listOfPlaces[index]['description']),
@@ -215,7 +226,9 @@ class _MapPageState extends State<MapPage> {
             ),
             FloatingActionButton(
               child: Icon(Icons.add),
-              onPressed: () async {},
+              onPressed: () async {
+                addLocationToList();
+              },
             ),
           ]),
         ),

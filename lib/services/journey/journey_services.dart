@@ -19,7 +19,10 @@ class JourneyServices {
 
   //creation
   Future<String> createJourneyInJourneyCollection(
-      String title, String journeyDescription, String journeyLocations, List<String> imageURLs ) async {
+      String title,
+      String journeyDescription,
+      String journeyLocations,
+      List<String> imageURLs) async {
     try {
       String noteId = await noteServices.createNoteInNotesCollection();
       await _firestore
@@ -74,7 +77,6 @@ class JourneyServices {
                 journeyLocations: doc['journeyLocations'],
                 title: doc['title'],
                 imageURLs: List<String>.from(doc['imageURLs']),
-                
               ))
           .toList();
       print(journey);
@@ -82,6 +84,35 @@ class JourneyServices {
     } catch (e) {
       print(e);
       return [];
+    }
+  }
+
+  //update urls in journey
+  Future<bool> updateJourneyImageURLs(
+      List<String> imageURLs, String noteId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('Users')
+          .doc(_auth.currentUser!.uid)
+          .collection('Notes')
+          .doc(noteId)
+          .collection('Journey')
+          .where('noteId', isEqualTo: noteId)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        // Update the title of the first matching document
+        await querySnapshot.docs.first.reference.update({
+          'imageURLs': FieldValue.arrayUnion(imageURLs),
+        });
+        print(note!.noteId);
+        print('Image URLs  updated successfully!');
+      } else {
+        print('No Journey found with the provided noteId.');
+      }
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
     }
   }
 
@@ -151,6 +182,4 @@ class JourneyServices {
       return false;
     }
   }
-
- 
 }
